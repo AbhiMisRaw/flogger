@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "blog-flog"
+version = "0.1.0"
+description = "A platform for blog."
+authors = [
+    "Abhishek Mishra <abhiimiishra@gmail.com>"
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+django = "6.0"
+python-dotenv = "1.2"
+psycopg = {extras = ["binary"], version = "^3.3.2"}
+djangorestframework = "^3.16.1"
+python-jose = "^3.5.0"
+djangorestframework-simplejwt = "^5.5.1"
