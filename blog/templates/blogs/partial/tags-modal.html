@@ -1,0 +1,288 @@
+<dialog id="tags_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">Add some tags</h3>
+
+    <div id="tags-container" class="flex flex-wrap gap-2 mb-3"></div>
+
+    <p id="tag-error" class="text-sm text-red-500 hidden">
+      Please add 3–5 tags
+    </p>
+
+    <input
+      id="tag-input"
+      type="text"
+      placeholder="Type a tag and press Enter"
+      class="w-full border px-2 py-1 mb-3"
+    />
+
+    <div class="flex justify-end gap-2">
+      <button
+        type="button"
+        onclick="submitWithTags()"
+        class="btn btn-sm bg-green-500 text-white">
+        Publish
+      </button>
+
+      <button
+        type="button"
+        onclick="tags_modal.close()"
+        class="btn btn-sm bg-red-400 text-white">
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>
+<script>
+    const tagInput = document.getElementById("tag-input");
+  const tagsContainer = document.getElementById("tags-container");
+  const hiddenInput = document.getElementById("tags-hidden");
+  const tagError = document.getElementById("tag-error");
+
+  const form = tagInput.closest("form"); // ✅ IMPORTANT
+
+  const MIN_TAGS = 3;
+  const MAX_TAGS = 7;
+
+  let tags = [];
+
+  function showError(msg) {
+    tagError.textContent = msg;
+    tagError.classList.remove("hidden");
+  }
+
+  function hideError() {
+    tagError.classList.add("hidden");
+  }
+
+  function renderTags() {
+    tagsContainer.innerHTML = "";
+
+    tags.forEach((tag, index) => {
+      const badge = document.createElement("div");
+      badge.className = "badge badge-outline badge-info gap-1";
+      badge.innerHTML = `
+        ${tag}
+        <span class="cursor-pointer" onclick="removeTag(${index})">✕</span>
+      `;
+      tagsContainer.appendChild(badge);
+    });
+
+    // Sync to hidden input
+    hiddenInput.value = tags.join(",");
+
+    // Inline validation
+    if (tags.length < MIN_TAGS) {
+      showError(`Add at least ${MIN_TAGS} tags.`);
+    } else if (tags.length > MAX_TAGS) {
+      showError(`You can add at most ${MAX_TAGS} tags.`);
+    } else {
+      hideError();
+    }
+  }
+
+  function removeTag(index) {
+    tags.splice(index, 1);
+    renderTags();
+  }
+
+  // Add tag on Enter (ONLY blocks Enter in input)
+  tagInput.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const value = tagInput.value.trim().toLowerCase();
+    if (!value) return;
+
+    if (tags.includes(value)) return;
+
+    if (tags.length >= MAX_TAGS) {
+      showError(`You can add at most ${MAX_TAGS} tags.`);
+      return;
+    }
+
+    tags.push(value);
+    tagInput.value = "";
+    renderTags();
+  });
+
+  // ✅ Final submit validation (does NOT break POST)
+  form.addEventListener("submit", function (e) {
+    if (tags.length < MIN_TAGS || tags.length > MAX_TAGS) {
+      e.preventDefault();
+      showError(
+        `Please add between ${MIN_TAGS} and ${MAX_TAGS} tags before publishing.`
+      );
+      return;
+    }
+
+    // ensure latest sync
+    hiddenInput.value = tags.join(",");
+  });
+  function submitWithTags() {
+    if (tags.length < 3 || tags.length > 5) {
+      showError("Please add 3–5 tags before publishing.");
+      return;
+    }
+
+    // set action dynamically
+    const form = document.getElementById("main-blog-form");
+
+    let actionInput = form.querySelector("input[name='action']");
+    if (!actionInput) {
+      actionInput = document.createElement("input");
+      actionInput.type = "hidden";
+      actionInput.name = "action";
+      form.appendChild(actionInput);
+    }
+    actionInput.value = "publish";
+
+    tags_modal.close();
+    form.submit(); // 🔥 THIS submits title + content + tags
+  }
+</script>
+
+
+
+
+
+
+
+{% comment %} 
+<dialog id="tags_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Add some tags here...</h3>
+        <p class="py-4">Press ESC key or click the button below to close</p>
+        
+        <form method="post" action="{% url 'blog:create_blog' %}">
+                {% csrf_token %}
+
+                <!-- Tags container -->
+                <div id="tags-container" class="flex flex-wrap gap-2 mb-3"></div>
+                <p
+                id="tag-error"
+                class="text-sm text-red-500 mt-1 hidden">
+                Please add at least 3 tags (max 5).
+                </p>
+                <!-- Input + buttons -->
+                <div class="flex items-center gap-3">
+                    <!-- Visible input -->
+                    <input
+                    id="tag-input"
+                    type="text"
+                    placeholder="Type a tag and press Enter"
+                    class="flex-1 bg-transparent border px-2 py-1 text-sm focus:outline-none"
+                    />
+
+                    <!-- Hidden input (sent to Django) -->
+                    <input type="hidden" name="tags" id="tags-hidden">
+
+                    <div class="flex gap-2 shrink-0">
+                    <button
+                        type="submit"
+                        name="action"
+                        value="publish"
+                        class="btn btn-sm bg-green-500 hover:bg-green-600 text-white">
+                        Publish
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="tags_modal.close()"
+                        class="btn btn-sm bg-blue-500 hover:bg-blue-700 text-white">
+                        Close
+                    </button>
+                    </div>
+                </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+  const tagInput = document.getElementById("tag-input");
+  const tagsContainer = document.getElementById("tags-container");
+  const hiddenInput = document.getElementById("tags-hidden");
+  const tagError = document.getElementById("tag-error");
+
+  const form = tagInput.closest("form"); // ✅ IMPORTANT
+
+  const MIN_TAGS = 3;
+  const MAX_TAGS = 5;
+
+  let tags = [];
+
+  function showError(msg) {
+    tagError.textContent = msg;
+    tagError.classList.remove("hidden");
+  }
+
+  function hideError() {
+    tagError.classList.add("hidden");
+  }
+
+  function renderTags() {
+    tagsContainer.innerHTML = "";
+
+    tags.forEach((tag, index) => {
+      const badge = document.createElement("div");
+      badge.className = "badge badge-outline badge-info gap-1";
+      badge.innerHTML = `
+        ${tag}
+        <span class="cursor-pointer" onclick="removeTag(${index})">✕</span>
+      `;
+      tagsContainer.appendChild(badge);
+    });
+
+    // Sync to hidden input
+    hiddenInput.value = tags.join(",");
+
+    // Inline validation
+    if (tags.length < MIN_TAGS) {
+      showError(`Add at least ${MIN_TAGS} tags.`);
+    } else if (tags.length > MAX_TAGS) {
+      showError(`You can add at most ${MAX_TAGS} tags.`);
+    } else {
+      hideError();
+    }
+  }
+
+  function removeTag(index) {
+    tags.splice(index, 1);
+    renderTags();
+  }
+
+  // Add tag on Enter (ONLY blocks Enter in input)
+  tagInput.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const value = tagInput.value.trim().toLowerCase();
+    if (!value) return;
+
+    if (tags.includes(value)) return;
+
+    if (tags.length >= MAX_TAGS) {
+      showError(`You can add at most ${MAX_TAGS} tags.`);
+      return;
+    }
+
+    tags.push(value);
+    tagInput.value = "";
+    renderTags();
+  });
+
+  // ✅ Final submit validation (does NOT break POST)
+  form.addEventListener("submit", function (e) {
+    if (tags.length < MIN_TAGS || tags.length > MAX_TAGS) {
+      e.preventDefault();
+      showError(
+        `Please add between ${MIN_TAGS} and ${MAX_TAGS} tags before publishing.`
+      );
+      return;
+    }
+
+    // ensure latest sync
+    hiddenInput.value = tags.join(",");
+  });
+</script> {% endcomment %}

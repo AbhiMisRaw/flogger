@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center -translate-y-8">
+    {% comment %} <div class="w-[90%] md:w-[80%] lg:w-[75%]"> {% endcomment %}
+        <div class="hero-content w-full flex flex-col lg:flex-row">
+            <div class="w-[50%]  text-center lg:text-center">
+                
+                <h1 class="text-5xl font-bold text-slate-500">Welcome to <span class="text-slate-800">Flogger</span></h1>
+
+                <p class="py-6 text-slate-500">
+                    Welcome back. Sign in or create an account to get started
+                    with your blogging journey.
+                </p>
+            </div>
+            <div>
+                {% if action == 'login' %}
+                    {% include 'user_profile/partials/login.html' %}
+                {% else %}
+                    {% include 'user_profile/partials/register.html' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

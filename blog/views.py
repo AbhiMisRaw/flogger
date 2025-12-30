@@ -1,34 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Blog
-from .forms import BlogForm
+from .blog_service import BlogServiceV1
 # Create your views here.
 
-@login_required
-def home(request):
-    user = request.user
-    blogs = (
-        Blog.objects\
-        .filter(author=user)\
-        # FK → JOIN
-        .select_related("author")\
-        # M2M → separate query
-        .prefetch_related("tags")\
-        .only('title', 'content', 'author', 'status', 'created_at')\
-        .order_by("-created_at")
-    )
-    
-    context = {
-        "homepage":"active",
-        "blogs":blogs,
-        "tab":"homepage",
-    }
-    return render(
-        request,
-        "homepage.html",
-        context=context
-    )
+
+class BlogHome(View):
+    def get(self, request):
+        return BlogServiceV1.get_homepage(request)
 
 
 def saved_blogs(request):
@@ -39,19 +20,20 @@ def saved_blogs(request):
     }
     return render(
         request,
-        "saved.html",
+        "blogs/saved.html",
         context=context
     )
 
 
 def my_blogs(request):
-    """this handler serve blogs written by user."""
+    """This handler serve blogs written by user."""
+    
     context = {
         "saved":"active",
     }
     return render(
         request,
-        "saved.html",
+        "blogs/saved.html",
         context=context
     )
 
@@ -65,7 +47,7 @@ def search_blogs(request):
     )
     return render(
         request,
-        "partial/blogs.html",
+        "blogs/partial/blogs.html",
         {
             "blogs":results,
             "query":query,
@@ -74,20 +56,18 @@ def search_blogs(request):
     )
 
 
-def create_blog(request):
-    """this handler help to create the blog."""
-    print(request.method)
-    if request.method == "POST":
-        
-        return render(request, "")
-    elif request.method == "GET":
-        form = BlogForm()
-        context = {
-            "title":"Create",
-            "form":form,
-            "tab":"create"
-        }
-        return render(request, "blog-editor.html", context)
+class BlogHandlerView(View):
+    def get(self, request):
+        return BlogServiceV1.get_creation_form(request)
+    
+    def post(self, request):
+        return BlogServiceV1.create_blog(request)
+    
+    def update(self, request):
+        pass
+
+    def delete(self, request):
+        pass
 
     
     

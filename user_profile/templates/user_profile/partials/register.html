@@ -1,0 +1,47 @@
+<div class="bg-white w-full max-w-sm shrink-0 shadow-2xl rounded-xl">
+    <div class="card-body overflow-visible">
+
+        <form method="POST" action="{% url 'user_profile:register' %}" class="space-y-3 overflow-visible">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+                {% for field in form %}
+                    <label for="{{ field.id_for_label }}" class="font-semibold text-black">
+                        {{ field.label }}
+                    </label>
+
+                        {{ field }}
+                    
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <p class="text-xs font-medium text-red-600 ml-1 animate-pulse">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                
+            {% endfor %}
+            <!-- Other content -->
+            <div class="flex flex-col gap-4 mt-4">
+                <!-- Login link -->
+                <p class="text-sm text-center text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'user_profile:login' %}" class="text-indigo-500 font-medium hover:underline">
+                        Login here!
+                    </a>
+                </p>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-neutral w-full text-white">
+                    Register
+                </button>
+            </div>
+        </form>
+        
+        
+    </div>
+</div>
+

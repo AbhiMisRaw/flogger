@@ -2,10 +2,9 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 
-# from .constants import BlogStatus
+from utils import Util
 
 User = get_user_model()
-
 
 class BlogStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
@@ -32,7 +31,7 @@ class Tag(models.Model):
 
 class Blog(models.Model):
     """Model for Blpg model."""
-    title = models.CharField(max_length=100, unique=True)
+    title = models.CharField(max_length=100)
     content = models.TextField()
     slug = models.SlugField(unique=True, blank=True)
     tags = models.ManyToManyField(
@@ -56,7 +55,8 @@ class Blog(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug or len(self.slug) == 0:
-            self.slug = slugify(self.title)
+            self.slug = f"{slugify(self.title)}-{Util.random_code()}"
+            print(self.slug)
         super(Blog, self).save(*args, **kwargs)
 
     def __str__(self):

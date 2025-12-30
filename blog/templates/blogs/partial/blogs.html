@@ -1,0 +1,38 @@
+<div id="blog-list">
+
+{% include 'navbar.html' %}
+
+{% if search %}
+    <p class="list-col-wrap text-xs">
+            {{ blogs|length }} blogs found.
+    </p>
+{% endif %}
+    <ul class="pt-2 list bg-base-500 rounded-box shadow-md">
+        {% comment %} <div class="text-bold text-md">Some of the blogs</div> {% endcomment %}
+            {% for blog in blogs %}
+                <li class="m-auto p-3 list-row">
+                    <div class="card w-full bg-gray-100 card-md shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title text-slate-900">{{ blog.title }}</h2>
+                            <p class="text-slate-600 h-10">
+                                {{ blog.content|truncatewords:25 }}
+                                <a href="google.com" class="text-blue-700">read more...</a>
+                            </p>
+                            
+                            <div class="justify-between card-actions py-3">
+                                <div class="">
+                                {% for tag in blog.tags.all %}
+                                    <div class="mx-1 badge badge-ghost text-white">{{ tag.name }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-sm font-sans italic text-slate-500">
+                                - by {{blog.author.full_name}} | 
+                                <span class="antialiased not-italic">{{ blog.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </li>
+            {% endfor %}
+</div>

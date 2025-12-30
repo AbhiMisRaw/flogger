@@ -8,10 +8,10 @@ class BlogForm(forms.Form):
             attrs={
                 "class": (
                     "w-full bg-transparent text-4xl font-bold "
-                    "text-slate-700 placeholder:text-slate-400 "
+                    "text-white placeholder:text-white "
                     "focus:outline-none"
                 ),
-                "placeholder": "your title"
+                "placeholder": "Your Title"
             }
         )
     )
@@ -22,8 +22,8 @@ class BlogForm(forms.Form):
             attrs={
                 "class": (
                     "w-full bg-transparent resize-none "
-                    "text-lg text-slate-800 leading-relaxed "
-                    "placeholder:text-slate-400 "
+                    "text-lg text-white leading-relaxed "
+                    "placeholder:text-white "
                     "focus:outline-none mt-6"
                 ),
                 "placeholder": "Tell your story...",
@@ -35,3 +35,17 @@ class BlogForm(forms.Form):
 
     class Meta:
         model = Blog
+
+class TagsForm(forms.Form):
+    tags = forms.CharField(
+        label="", 
+        widget=forms.TextInput(
+            attrs={
+                "class": (
+                    "w-full bg-transparent border text-md font-bold "
+                    "placeholder:text-slate-400 "
+                    "focus:outline-none"
+                )
+            }
+        ),
+    )

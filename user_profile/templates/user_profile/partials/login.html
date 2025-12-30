@@ -1,0 +1,46 @@
+<div class="bg-white w-full max-w-sm shrink-0 shadow-2xl rounded-xl">
+        <div class="card-body">
+
+            <form method="POST" action="{% url 'user_profile:login' %}" class="space-y-3">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                    {% for field in form %}
+                        <label for="{{ field.id_for_label }}" class="font-semibold text-black">
+                            {{ field.label }}
+                        </label>
+
+                        <!-- Input styling with modern focus & error states -->
+                          {{ field }}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <p class="text-xs font-medium text-red-600 ml-1 animate-pulse">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    
+                {% endfor %}
+                <div class="flex flex-col gap-4 mt-4">
+                  <!-- Login link -->
+                  <p class="text-sm text-center text-gray-600">
+                      Don't have an account?
+                      <a href="{% url 'user_profile:register' %}" class="text-indigo-500 font-medium hover:underline">
+                          Signup here!
+                      </a>
+                  </p>
+
+                  <!-- Submit button -->
+                  <button type="submit" class="btn btn-neutral w-full text-white">
+                      Login
+                  </button>
+              </div>
+            </form>
+            <!-- Other content -->
+              
+            
+        </div>
+    </div>
