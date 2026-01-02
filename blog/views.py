@@ -9,7 +9,14 @@ from .blog_service import BlogServiceV1
 
 class BlogHome(View):
     def get(self, request):
+        
         return BlogServiceV1.get_homepage(request)
+
+
+class SingleBlogSlugView(View):
+    def get(self, request, slug: str):
+        
+        return BlogServiceV1.get_blog(request, slug)
 
 
 def saved_blogs(request):

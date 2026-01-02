@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # "rest_framework_simplejwt",
+    "markdownify.apps.MarkdownifyConfig",
     "user_profile",
     "blog",
 ]
@@ -163,3 +164,17 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
+
+MARKDOWNIFY = {
+    "default": {
+        "WHITELIST_TAGS": [
+            'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'code', 
+            'span', 'strong', 'em', 'br', 'ul', 'li', 'ol'
+        ],
+        "MARKDOWN_EXTENSIONS": [
+            "markdown.extensions.fenced_code",  # This handles the ``` blocks
+            "markdown.extensions.extra",        # Adds support for tables, etc.
+            "markdown.extensions.nl2br",        # Preserves your newlines
+        ],
+    }
+}

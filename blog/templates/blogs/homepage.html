@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 
+    {% if tab == "homepage" %}
     <div class="">
         {% include 'blogs/partial/blogs.html' %}
     </div>
+    {% else %}
+    <div class="">
+        
+        {% include 'blogs/blog.html' %}
+    </div>
+    {% endif %}
 
 {% endblock %}

@@ -11,12 +11,14 @@
         {% comment %} <div class="text-bold text-md">Some of the blogs</div> {% endcomment %}
             {% for blog in blogs %}
                 <li class="m-auto p-3 list-row">
-                    <div class="card w-full bg-gray-100 card-md shadow-sm">
+                    <div class="card w-full bg-gray-100 card-md shadow-xl">
                         <div class="card-body">
-                            <h2 class="card-title text-slate-900">{{ blog.title }}</h2>
+                            <h2 class="card-title text-slate-900">
+                                <a href="{% url 'blog:get_blog_by_slug' blog.slug %}">{{ blog.title }}</a>
+                            </h2>
                             <p class="text-slate-600 h-10">
                                 {{ blog.content|truncatewords:25 }}
-                                <a href="google.com" class="text-blue-700">read more...</a>
+                                <a href="{% url 'blog:get_blog_by_slug' blog.slug %}" class="text-blue-700">read more...</a>
                             </p>
                             
                             <div class="justify-between card-actions py-3">

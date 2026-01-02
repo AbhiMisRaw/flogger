@@ -10,6 +10,24 @@ from .models import Blog, BlogStatus, Tag
 class BlogServiceV1():
 
     @staticmethod
+    def get_blog(request, slug: str):
+        result = (
+            Blog.objects\
+            .filter(slug=slug)\
+            .select_related('author')\
+            .first()
+        )
+        return render(
+            request,
+            "blogs/homepage.html",
+            {
+                "blog":result,
+                "tab":"blog_page",
+            }
+        )
+
+
+    @staticmethod
     def validate_form(data: dict, form_class: Form):
         form = form_class(data)
         if form.is_valid():
@@ -49,7 +67,6 @@ class BlogServiceV1():
         is_title_exist = Blog.objects.filter(title=data.get("title"), author=user).exists()
 
         if is_title_exist:
-            print("title already exit!!!")
             form.add_error(None, "Change your title, this title is already exist...")
             context = {
                 "title":"Create",
@@ -104,9 +121,7 @@ class BlogServiceV1():
 
     @staticmethod
     def get_homepage(request):
-
         query = request.GET.get("search","")
-
         if query:
             # filtering the blogs
             results = Blog.objects.filter(

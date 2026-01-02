@@ -31,9 +31,13 @@ class Tag(models.Model):
 
 class Blog(models.Model):
     """Model for Blpg model."""
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
     content = models.TextField()
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        blank=True
+    )
     tags = models.ManyToManyField(
         Tag,
         related_name="blogs",

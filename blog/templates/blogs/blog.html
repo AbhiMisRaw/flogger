@@ -1,0 +1,38 @@
+{% load markdownify %}
+
+<div class=" mx-auto px-4 py-8 bg-white">
+    
+    <header class="mb-10">
+        <h1 class="text-center text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
+            {{ blog.title }}
+        </h1>
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between border-y border-gray-100 py-4 text-sm text-gray-500">
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-900">By {{ blog.author.full_name }}</span>
+                <span class="text-gray-300">•</span>
+                <span>{{ blog.created_at|date:"M d, Y" }}</span>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+                {% for tag in blog.tags.all %}
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full uppercase tracking-wider">
+                    {{ tag.name }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    <article class="prose prose-blue lg:prose-xl max-w-none 
+                    prose-pre:bg-gray-900 prose-pre:shadow-lg prose-pre:rounded-xl
+                    prose-headings:font-bold prose-a:text-blue-600 text-gray-800">
+        {{ blog.content|markdownify }}
+    </article>
+
+    <div class="mt-16 pt-8 border-t border-gray-100 text-center">
+        <a href="{% url 'blog:home_page' %}" class="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+            ← Back to all stories
+        </a>
+    </div>
+</div>

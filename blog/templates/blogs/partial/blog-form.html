@@ -1,14 +1,14 @@
 <div id="blog-form">
 
 {% include 'navbar.html' %}
-
+{% comment %} 
 {% if messages %}
   {% for message in messages %}
     <div class="alert alert-error">
       {{ message }}
     </div>
   {% endfor %}
-{% endif %}
+{% endif %} {% endcomment %}
 
 <form id="main-blog-form" method="POST" action="{% url 'blog:create_blog' %}">
     {% csrf_token %}

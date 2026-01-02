@@ -8,6 +8,7 @@
     <title>Flogger</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
 
             <div class="navbar bg-base shadow-xl rounded shadow-blue-100/10">
                 <div class="flex-1">
-                    <a class="btn btn-ghost text-xl">flogger</a>
+                    <a href="{% url 'blog:home_page' %}" class="btn btn-ghost text-xl">flogger</a>
                 </div>
                 <div class="flex gap-2">
                     <input 
