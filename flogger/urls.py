@@ -1,16 +1,21 @@
-
+from http import HTTPStatus
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from django.shortcuts import redirect
+# from rest_framework.response import Response
+# from rest_framework.decorators import api_view
+from django.http import JsonResponse
 
 
-@api_view(["GET"])
 def health_check(request):
     response = {"status":"OK"}
-    return Response(response)
+    return JsonResponse(response, status=HTTPStatus.OK)
+
+def redirect_to_home(request):
+    return redirect("blog:home_page")
 
 urlpatterns = [
+    path("", redirect_to_home),
     path('flog/devi/admin/', admin.site.urls),
     path("health/", health_check),
     path("about/", health_check),

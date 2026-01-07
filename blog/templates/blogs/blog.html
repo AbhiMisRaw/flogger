@@ -3,7 +3,7 @@
 <div class=" mx-auto px-4 py-8 bg-white">
     
     <header class="mb-10">
-        <h1 class="text-center text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
+        <h1 class="text-center text-4xl md:text-5xl font-extrabold tracking-tight leading-tight mb-6">
             {{ blog.title }}
         </h1>
         
@@ -16,7 +16,7 @@
             
             <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
                 {% for tag in blog.tags.all %}
-                <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full uppercase tracking-wider">
+                <span class="px-3 py-1 bg-blue-50 text-indigo-600 text-xs font-semibold rounded-full uppercase tracking-wider">
                     {{ tag.name }}
                 </span>
                 {% endfor %}

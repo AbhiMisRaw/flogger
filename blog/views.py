@@ -1,48 +1,22 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.views import View
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.db.models import Q
 from .models import Blog
-from .blog_service import BlogServiceV1
+from .blog_service import BlogServiceV1, BlogAPIService
 # Create your views here.
 
 
 class BlogHome(View):
     def get(self, request):
-        
         return BlogServiceV1.get_homepage(request)
 
 
 class SingleBlogSlugView(View):
     def get(self, request, slug: str):
-        
         return BlogServiceV1.get_blog(request, slug)
-
-
-def saved_blogs(request):
-    """this handler serve those blogs saved by user."""
-    context = {
-        "saved":"active",
-        "tab":"saved",
-    }
-    return render(
-        request,
-        "blogs/saved.html",
-        context=context
-    )
-
-
-def my_blogs(request):
-    """This handler serve blogs written by user."""
-    
-    context = {
-        "saved":"active",
-    }
-    return render(
-        request,
-        "blogs/saved.html",
-        context=context
-    )
 
 
 def search_blogs(request):
@@ -76,5 +50,21 @@ class BlogHandlerView(View):
     def delete(self, request):
         pass
 
-    
-    
+
+class BlogGetApiViewV1(View):
+
+    def get(self, request):
+        return BlogAPIService.get_blogs(request)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BlogCreateAPIView(View):
+    @csrf_exempt
+    def post(self, request):
+        return BlogAPIService.handle_blog_creation(request=request)
+
+    def patch(request):
+        pass
+
+    def delete(reqeust):
+        pass

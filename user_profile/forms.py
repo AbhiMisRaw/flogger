@@ -15,7 +15,7 @@ class UserLoginForm(forms.Form):
         })
     )
     password = forms.CharField(
-        validators=[validators.MinLengthValidator(6)],
+        validators=[validators.MinLengthValidator(4)],
         widget=forms.PasswordInput(attrs={
             "class": "input input-bordered w-full h-12 px-4 text-white leading-6"
         })

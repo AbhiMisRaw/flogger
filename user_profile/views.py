@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
@@ -55,21 +55,17 @@ def about(request):
     }
     return render(
         request,
-        "saved.html",
+        "user_profile/about.html",
         context=context
     )
 
+from django.contrib.auth import logout
 
-# class UserLoginView(APIView):
-
-#     def post(self, request):
-#         serializer = UserLoginSerializer(data=request.data)
-#         if serializer.is_valid(raise_exception=True):
-#             payload = serializer.validated_data
-#             payload["user"] = UserSerializer(payload.get("user")).data
-#             return Response(payload)
-        
-#         raise AuthenticationFailed(detail=Error.LOGIN_ERROR)
+class UserLogoutView(View):
+    
+    def get(self, request):
+        logout(request)
+        return redirect('blog:home_page')
 
 
 class UserRegistrationView(APIView):
@@ -97,6 +93,6 @@ class UserProfileView(APIView):
         print(user)
         serializer = UserSerializer(user).data
 
-        return Response(serializer)
+        return JsonResponse(serializer)
 
 

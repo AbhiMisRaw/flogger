@@ -1,14 +1,6 @@
 <div id="blog-form">
 
 {% include 'navbar.html' %}
-{% comment %} 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-error">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %} {% endcomment %}
 
 <form id="main-blog-form" method="POST" action="{% url 'blog:create_blog' %}">
     {% csrf_token %}
@@ -43,52 +35,3 @@
 {% include 'blogs/partial/tags-modal.html' %}
 
 </div>
-
-
-
-
-
-
-
-
-
-{% comment %} <div id="blog-form">
-
-{% include 'navbar.html' %}
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-error">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %}
-
-<form method="POST" action="{% url 'blog:create_blog' %}">
-    {% if form.non_field_errors %}
-                    <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200">
-                        {{ form.non_field_errors }}
-                    </div>
-    {% endif %}
-    {% csrf_token %}
-    <div class="flex flex-row justify-between">
-        <div>{{ form.title }}</div>
-        <div>
-            <button 
-                onclick="tags_modal.showModal()"
-                class="btn-sm rounded bg-blue-500 hover:bg-blue-700 text-white">
-                    Publish
-            </button>
-            {% include 'blogs/partial/tags-modal.html' %}
-            <button 
-                type="submit"
-                name="action"
-                value="draft"
-                class="btn-sm rounded bg-blue-300 hover:bg-blue-700 text-white">
-                Save as draft
-            </button>
-        </div>
-        
-    </div>
-    {{ form.content }}
-</form>
-</div> {% endcomment %}

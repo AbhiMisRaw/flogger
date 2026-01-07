@@ -2,20 +2,90 @@
 
 {% block content %}
 
-<div>
-    <h2 class="text-4xl">
-        About
-    </h2>
-    <hr>
-    <div>
-        What is Lorem Ipsum?
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. 
-It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, 
-and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+<section class="mt-16 max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold tracking-tight text-base-content">
+            About Sapphire
+        </h1>
+        <p class="mt-2 text-base-content/70">
+            An open blogging platform built by developers, for learners.
+        </p>
+        <div class="mt-4 h-1 w-16 bg-indigo-500 rounded"></div>
     </div>
-</div>
+
+    <!-- Mission -->
+    <div class="bg-base-100 border border-base-300 rounded-2xl p-8 shadow-sm space-y-6">
+
+        <p class="text-lg text-base-content/80">
+            Sapphire is built on a simple belief:
+            <span class="font-medium text-base-content">
+                education should be free, open, and accessible to everyone.
+            </span>
+        </p>
+
+        <p class="text-base-content/70">
+            We don’t believe in locking knowledge behind paywalls or
+            subscription-only models. Platforms like Medium are great,
+            but as programmers, we know we can build better systems —
+            systems that respect openness, ownership, and learning.
+        </p>
+
+        <p class="text-base-content/70">
+            Sapphire is our attempt to create a space where blogs, notes,
+            and articles remain truly yours, forever.
+        </p>
+
+        <hr class="border-base-300">
+
+        <!-- Upcoming Features -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4 text-base-content">
+                What we’re building next
+            </h2>
+
+            <ul class="space-y-4 text-base-content/70">
+                <li>
+                    <span class="font-medium text-base-content">
+                        AI-assisted reading experience
+                    </span>
+                    — Readers will be able to consume blogs based on their
+                    mood or preference, such as anime-style narration,
+                    movie-like storytelling, or calm night-time reading modes.
+                    The goal is to make learning feel natural, not forced.
+                </li>
+
+                <li>
+                    <span class="font-medium text-base-content">
+                        Git-based CLI publishing
+                    </span>
+                    — A developer-first workflow where your blogs and notes
+                    live as plain <code>.txt</code> or <code>.md</code> files
+                    on your local system. Write locally, run a Git command,
+                    and your content is published — simple, transparent,
+                    and version-controlled.
+                </li>
+            </ul>
+        </div>
+
+        <hr class="border-base-300">
+
+        <!-- Vision -->
+        <p class="text-base-content/70">
+            Sapphire is not just a platform — it’s a reminder that as
+            programmers, we have the power to build systems aligned
+            with our values. Knowledge should flow freely, and tools
+            should empower creators, not restrict them.
+        </p>
+
+    </div>
+
+    <p class="mt-10 text-sm text-base-content/60 text-center">
+        Built with ❤️ by Abhishek Mishra
+        <div class="tenor-gif-embed" data-postid="3479189063180695840" data-share-method="host" data-aspect-ratio="1.12162" data-width="100%"><a href="https://tenor.com/view/cat-cat-meme-fancy-fancy-cat-business-cat-gif-3479189063180695840">Cat Cat Meme Meme</a>from <a href="https://tenor.com/search/cat-memes">Cat Memes</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    </p>
+
+</section>
 
 {% endblock %}

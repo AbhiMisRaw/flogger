@@ -1,123 +1,152 @@
-from django.shortcuts import redirect, render
-from django.forms import Form
+import json
+from typing import List
+from django.http import JsonResponse
 from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 
-from .forms import BlogForm, TagsForm
+from .forms import BlogForm
 from .models import Blog, BlogStatus, Tag
 
-class BlogServiceV1():
+User = get_user_model()
+
+
+class BlogCoreService:
+    """
+    Pure business logic.
+    Can be reused by MVT views, DRF APIs, Celery, CLI, tests.
+    """
 
     @staticmethod
-    def get_blog(request, slug: str):
-        result = (
-            Blog.objects\
-            .filter(slug=slug)\
-            .select_related('author')\
+    def create_blog(
+        author,
+        title: str,
+        content: str,
+        status: str,
+        tags: list[str] | None = None,
+    ) -> Blog:
+        status = (
+            BlogStatus.DRAFT.value
+            if status == "draft"
+            else BlogStatus.PUBLISHED.value
+        )
+        print(tags)
+        with transaction.atomic():
+            blog = Blog.objects.create(
+                title=title,
+                content=content,
+                status=status,
+                author=author,
+            )
+
+            if tags:
+                tag_objs = [
+                    Tag.objects.get_or_create(name=tag.strip())[0]
+                    for tag in tags
+                ]
+                blog.tags.add(*tag_objs)
+
+        return blog
+
+class BlogQueryService:
+
+    @staticmethod
+    def get_blog_by_slug(slug: str) -> Blog | None:
+        return (
+            Blog.objects
+            .filter(slug=slug)
+            .select_related("author")
+            .prefetch_related("tags")
             .first()
         )
+
+    @staticmethod
+    def fetch_blogs(*, user_id=None, status=None):
+        status = status or BlogStatus.PUBLISHED.value
+
+        qs = Blog.objects.filter(status=status)
+
+        if user_id:
+            qs = qs.filter(author_id=user_id)
+
+        return (
+            qs.select_related("author")
+              .prefetch_related("tags")
+              .order_by("-created_at")
+        )
+
+
+class BlogServiceV1:
+
+    @staticmethod
+    def validate_form(data, form_class):
+        form = form_class(data)
+        return form, form.is_valid()
+
+    @staticmethod
+    def get_blog(request, slug):
+        blog = BlogQueryService.get_blog_by_slug(slug)
         return render(
             request,
             "blogs/homepage.html",
             {
-                "blog":result,
+                "blog":blog,
                 "tab":"blog_page",
             }
         )
 
-
     @staticmethod
-    def validate_form(data: dict, form_class: Form):
-        form = form_class(data)
-        if form.is_valid():
-            return form, True
+    def get_creation_form(request, blog: Blog = None):
+        if blog:
+            form = BlogForm(blog)
+        else:
+            form = BlogForm()
         
-        return form, False
-
-    @staticmethod
-    def get_creation_form(request):
-        form = BlogForm()
-        tags_form = TagsForm()
         context = {
             "title":"Create",
             "form":form,
-            "tags_form":tags_form,
             "tab":"create"
         }
         return render(request, "blogs/blog-editor.html", context)
 
     @staticmethod
     def create_blog(request):
-        user = request.user
-        # validating blog
-        form, is_valid = BlogServiceV1.validate_form(request.POST, BlogForm)
-
-        if not is_valid:
-            context = {
-                "title":"Create",
-                "form":form,
-                "tab":"create"
-            }
-            return render(request, "blogs/blog-editor.html", context)
-        
-        
-        data = form.cleaned_data
-        action = request.POST.get("action")
-        is_title_exist = Blog.objects.filter(title=data.get("title"), author=user).exists()
-
-        if is_title_exist:
-            form.add_error(None, "Change your title, this title is already exist...")
-            context = {
-                "title":"Create",
-                "form":form,
-                "tab":"create"
-            }
-            return render(request, "blogs/blog-editor.html", context)
-        
-        blog = Blog.objects.create(
-            title=data.get("title"),
-            content=data.get("content"),
-            status = "",
-            author=user
+        form, is_valid = BlogServiceV1.validate_form(
+            request.POST, BlogForm
         )
 
-        if action == "draft":
-            return redirect("/flog/homepage")
-        else:
-            tags_raw = request.POST.get("tags", "")
-            tags = tags_raw.split(",")
+        if not is_valid:
+            return render(
+                request,
+                "blogs/blog-editor.html",
+                {"form": form, "tab": "create"},
+            )
 
-            if not (3 <= len(tags) <= 5):
-                messages.error(request, "Tags must be between 3 and 5.")
-                return redirect("blog:create")
-            
-            # 3️⃣ Atomic DB operation
-            with transaction.atomic():
-                blog = Blog.objects.create(
-                    title=data["title"],
-                    content=data["content"],
-                    status="draft" if action == "draft" else "published",
-                    author=user,
-                )
+        data = form.cleaned_data
+        action = request.POST.get("action")
+        tags = request.POST.get("tags", "").split(",")
 
-                # 4️⃣ Create tags if needed + attach
-                if action == "publish":
-                    tag_objects = []
+        if action == "publish" and not (3 <= len(tags) <= 5):
+            messages.error(request, "Tags must be between 3 and 5.")
+            return redirect("blog:create")
 
-                    for tag_name in tags:
-                        tag_obj, _ = Tag.objects.get_or_create(name=tag_name)
-                        tag_objects.append(tag_obj)
+        blog = BlogCoreService.create_blog(
+            title=data["title"],
+            content=data["content"],
+            author=request.user,
+            status=action,
+            tags=tags,
+        )
 
-                    blog.tags.add(*tag_objects)
-
-            # 5️⃣ Redirect
-            if action == "draft":
-                messages.success(request, "Draft saved successfully.")
-            else:
-                messages.success(request, "Blog published successfully.")
-
-            return redirect("/flog/homepage")
+        messages.success(
+            request,
+            "Draft saved successfully."
+            if action == "draft"
+            else "Blog published successfully.",
+        )
+        return redirect("/flog/homepage")
 
     @staticmethod
     def get_homepage(request):
@@ -139,17 +168,10 @@ class BlogServiceV1():
                 }
             )
         
-        blogs = (
-            Blog.objects\
-            .filter(status=BlogStatus.PUBLISHED.value)\
-            # FK → JOIN
-            .select_related("author")\
-            # M2M → separate query
-            .prefetch_related("tags")\
-            .only('title', 'content', 'author', 'status', 'created_at')\
-            .order_by("-created_at")
+        blogs = BlogQueryService.fetch_blogs(
+            user_id=request.GET.get("user"),
+            status=request.GET.get("status"),
         )
-        
         context = {
             "homepage":"active",
             "blogs":blogs,
@@ -163,3 +185,25 @@ class BlogServiceV1():
 
     def update_blog(self, request, blog_id):
         pass
+
+
+class BlogAPIService(BlogCoreService):
+
+    @staticmethod
+    def get_blogs(request):
+        
+        blogs = BlogQueryService.fetch_blogs(
+            user_id=request.GET.get("user"),
+            status=request.GET.get("status"),
+        )
+        data_list = [blog.to_dict() for blog in blogs]
+        return JsonResponse(data_list, safe=False, status=200)
+
+    @classmethod
+    def handle_blog_creation(cls, request):
+        body = json.loads(request.body)
+        
+        user = User.objects.get(pk=1)
+        body["status"] = body.get("status") or "draft"
+        blog = BlogCoreService.create_blog(user, **body)
+        return JsonResponse(blog.to_dict())

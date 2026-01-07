@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Flogger</title>
+    <title>Sapphire</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="w-[90%] md:w-[80%] lg:w-[75%] mx-auto text-white">
+    <div class="w-[90%] md:w-[80%] lg:w-[75%] mx-auto">
 
-            <div class="navbar bg-base shadow-xl rounded shadow-blue-100/10">
+            <div class="navbar bg-indigo-400 shadow-xl text-white rounded shadow-blue-800/60">
                 <div class="flex-1">
-                    <a href="{% url 'blog:home_page' %}" class="btn btn-ghost text-xl">flogger</a>
+                    <a href="{% url 'blog:home_page' %}" class="btn btn-ghost text-xl">Sapphire</a>
                 </div>
                 <div class="flex gap-2">
                     <input 
                         type="text" 
                         name="search" 
                         placeholder="Search" 
-                        class="input input-bordered w-24 md:w-auto"
+                        class="input input-bordered text-gray-700 w-24 md:w-auto"
                         hx-get={% url 'blog:search' %}
                         hx-trigger="keyup"
                         hx-target="#blog-list"
@@ -53,11 +53,11 @@
                         </div>
                         <ul
                             tabindex="-1"
-                            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
+                            class="menu menu-sm dropdown-content text-black rounded-box z-50 mt-3 w-52 p-2 shadow">
                         {% if user.is_authenticated %}
-                            <li><a class="flex items-center gap-2"  href="{% url 'user_profile:profile' %}">Profile</a></li>
+                            <li><a href="{% url 'user_profile:profile' %}" class="flex items-center gap-2">Profile</a></li>
                             <li><a class="flex items-center gap-2" href="">Settings</a></li>
-                            <li><a class="flex items-center gap-2" href="">Logout</a></li>
+                            <li><a href={% url 'user_profile:logout' %} class="flex items-center gap-2" href="">Logout</a></li>
                         {% else %}
                         
                             <li><a class="flex items-center gap-2" href="{% url 'user_profile:login' %}">Login</a> </li>
@@ -73,53 +73,56 @@
     </div>
         
 </body>
-{% comment %} <footer class="w-[800px] mx-auto bg-white footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
-  <aside >
-    <svg
-      width="50"
-      height="50"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-      fill-rule="evenodd"
-      clip-rule="evenodd"
-      class="fill-current">
-      <path
-        d="M22.672 15.226l-2.432.811.841 2.515c.33 1.019-.209 2.127-1.23 2.456-1.15.325-2.148-.321-2.463-1.226l-.84-2.518-5.013 1.677.84 2.517c.391 1.203-.434 2.542-1.831 2.542-.88 0-1.601-.564-1.86-1.314l-.842-2.516-2.431.809c-1.135.328-2.145-.317-2.463-1.229-.329-1.018.211-2.127 1.231-2.456l2.432-.809-1.621-4.823-2.432.808c-1.355.384-2.558-.59-2.558-1.839 0-.817.509-1.582 1.327-1.846l2.433-.809-.842-2.515c-.33-1.02.211-2.129 1.232-2.458 1.02-.329 2.13.209 2.461 1.229l.842 2.515 5.011-1.677-.839-2.517c-.403-1.238.484-2.553 1.843-2.553.819 0 1.585.509 1.85 1.326l.841 2.517 2.431-.81c1.02-.33 2.131.211 2.461 1.229.332 1.018-.21 2.126-1.23 2.456l-2.433.809 1.622 4.823 2.433-.809c1.242-.401 2.557.484 2.557 1.838 0 .819-.51 1.583-1.328 1.847m-8.992-6.428l-5.01 1.675 1.619 4.828 5.011-1.674-1.62-4.829z"></path>
-    </svg>
-    <p class="text-slate-700">
-      by <span class="text-slate-900 decoration-2 underline">@abhiimiishra<span>
-      <br />
-    </p>
-  </aside>
-  <nav>
-    <h6 class="footer-title">Social</h6>
-    <div class="grid grid-flow-col gap-4">
-      <a>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          class="fill-current">
-          <path
-            d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-        </svg>
-      </a>
-      <a>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          class="fill-current">
-          <path
-            d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-        </svg>
-      </a>
-      <a>
-       <svg viewBox="0 0 48 48" id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><defs><style>.cls-1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;fill-rule:evenodd;}</style></defs><path class="cls-1" d="M24,2.5a21.5,21.5,0,0,0-6.8,41.9c1.08.2,1.47-.46,1.47-1s0-1.86,0-3.65c-6,1.3-7.24-2.88-7.24-2.88A5.7,5.7,0,0,0,9,33.68c-1.95-1.33.15-1.31.15-1.31a4.52,4.52,0,0,1,3.29,2.22c1.92,3.29,5,2.34,6.26,1.79a4.61,4.61,0,0,1,1.37-2.88c-4.78-.54-9.8-2.38-9.8-10.62a8.29,8.29,0,0,1,2.22-5.77,7.68,7.68,0,0,1,.21-5.69s1.8-.58,5.91,2.2a20.46,20.46,0,0,1,10.76,0c4.11-2.78,5.91-2.2,5.91-2.2a7.74,7.74,0,0,1,.21,5.69,8.28,8.28,0,0,1,2.21,5.77c0,8.26-5,10.07-9.81,10.61a5.12,5.12,0,0,1,1.46,4c0,2.87,0,5.19,0,5.9s.39,1.24,1.48,1A21.5,21.5,0,0,0,24,2.5"></path></g></svg>
-    </a>
+<footer class="w-[90%] md:w-[80%] lg:w-[75%] mx-auto mt-20 border-t border-base-300 bg-base-100">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+      <!-- Brand -->
+      <div class="space-y-4">
+        <h2 class="text-2xl font-bold text-primary">Sapphire</h2>
+        <p class="text-base-content/70 leading-relaxed">
+          A minimal blogging platform for developers and creators.
+          Write freely. Publish confidently.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h3 class="font-semibold text-lg mb-4">Quick Links</h3>
+        <ul class="space-y-2 text-base-content/70">
+          <li><a href="{% url 'blog:home_page' %}" class="hover:text-primary">Home</a></li>
+          <li><a href="#" class="hover:text-primary">Explore Blogs</a></li>
+          <li><a href="#" class="hover:text-primary">Write</a></li>
+          <li><a href="{% url 'user_profile:about' %}" class="hover:text-primary">About</a></li>
+        </ul>
+      </div>
+
+      <!-- Social -->
+      <div>
+        <h3 class="font-semibold text-lg mb-4">Connect</h3>
+        <div class="flex gap-4">
+          <a href="https://x.com/__AbhiMishra" class="btn btn-sm btn-outline btn-circle">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 4.56c-.89.39-1.84.65-2.84.77a4.96 4.96 0 002.16-2.73 9.93 9.93 0 01-3.13 1.2 4.92 4.92 0 00-8.38 4.49A13.97 13.97 0 011.67 3.15a4.92 4.92 0 001.52 6.57 4.9 4.9 0 01-2.23-.61v.06a4.93 4.93 0 003.95 4.83 4.94 4.94 0 01-2.22.08 4.93 4.93 0 004.6 3.42A9.87 9.87 0 010 19.54 13.94 13.94 0 007.55 22c9.06 0 14.01-7.5 14.01-14v-.64A9.93 9.93 0 0024 4.56z"/>
+            </svg>
+          </a>
+
+          <a href="https://github.com/AbhiMisRaw" class="btn btn-sm btn-outline btn-circle">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 .5C5.73.5.5 5.74.5 12.02c0 5.11 3.29 9.44 7.86 10.97.57.1.78-.25.78-.55v-1.93c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.19 1.75 1.19 1.02 1.75 2.67 1.25 3.32.95.1-.74.4-1.25.73-1.53-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.19a11.02 11.02 0 015.8 0c2.2-1.5 3.17-1.19 3.17-1.19.63 1.59.23 2.77.11 3.06.74.81 1.19 1.85 1.19 3.11 0 4.43-2.7 5.4-5.28 5.69.41.35.78 1.05.78 2.12v3.14c0 .3.21.66.79.55a11.53 11.53 0 007.85-10.97C23.5 5.74 18.27.5 12 .5z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
     </div>
-  </nav>
-</footer> {% endcomment %}
+
+    <!-- Bottom -->
+    <div class="mt-12 pt-6 border-t border-base-300 text-center text-sm text-base-content/60">
+      © {{ now|date:"Y" }} Flogger · Built with ❤️ by <span class="font-medium">@abhiimiishra</span>
+    </div>
+
+  </div>
+</footer>
 </html>

@@ -66,6 +66,20 @@ class Blog(models.Model):
     def __str__(self):
         return f"{self.id}. {self.title}"
     
+    def to_dict(self):
+        return {
+            "id":str(self.id),
+            "title":self.title,
+            "content": str(self.content)[:100],
+            "author":{
+                "id":str(self.author.id),
+                "full_name":str(self.author.full_name),
+            },
+            "status":self.status,
+            "tags":list(self.tags.values("id", "name")),
+            "created_at": self.created_at
+        }
+    
     class Meta:
         indexes = [
             models.Index(fields=["slug"]),
