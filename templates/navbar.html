@@ -3,7 +3,7 @@
             {% if user.is_authenticated %}
                     <ul class="menu menu-horizontal rounded-box">
                         <li>
-                            <a href="{% url 'blog:home_page' %}" class="rounded-md{% if tab == 'homepage' %} bg-indigo-100 text-gray-700{% else %} text-gray-500 {% endif %}">
+                            <a href="{% url 'blog:home_page' %}" class="rounded-md{% if tab == 'homepage' %} bg-indigo-500 text-white {% else %} text-gray-500 {% endif %}">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="h-7 w-7"
@@ -21,7 +21,7 @@
                         <li>
                             <a 
                                 href="{% url 'blog:create_blog' %}"
-                                class="rounded-md{% if tab == 'create' %} bg-indigo-100 text-gray-700{% else %} text-gray-500 {% endif %}"
+                                class="rounded-md{% if tab == 'create' %}  bg-indigo-500 text-white  {% else %} text-gray-500 {% endif %}"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"

@@ -8,7 +8,7 @@ class BlogForm(forms.Form):
             attrs={
                 "class": (
                     "w-full bg-transparent text-4xl font-bold "
-                    "placeholder:text-indigo-300 "
+                    "placeholder:text-gray-500 "
                     "focus:outline-none"
                 ),
                 "placeholder": "Your Title"
@@ -23,7 +23,7 @@ class BlogForm(forms.Form):
                 "class": (
                     "w-full bg-transparent resize-none "
                     "text-lg leading-relaxed "
-                    "placeholder:text-indigo-300 "
+                    "placeholder:text-gray-500 "
                     "focus:outline-none mt-6"
                 ),
                 "placeholder": "Tell your story...",

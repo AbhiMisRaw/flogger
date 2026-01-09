@@ -90,7 +90,6 @@ class UserProfileView(APIView):
     
     def get(self, request):
         user = request.user
-        print(user)
         serializer = UserSerializer(user).data
 
         return JsonResponse(serializer)
