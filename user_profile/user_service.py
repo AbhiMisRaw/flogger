@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, get_user_model
 from django import forms
 
+from blog.models import Blog
 from .forms import UserLoginForm, UserRegisterForm
 from .constants import URL, Error
 
@@ -132,7 +133,22 @@ class AuthServiceV1():
 
         login(request, user)
         return redirect("/flog/homepage")
-    
+
+
+    @staticmethod
+    def get_profile(request):
+        user = request.user
+        blogs = Blog.objects.filter(author=user).order_by('-created_at')[:5]
+        context = {
+            "user":user,
+            "blogs":blogs,
+        }
+
+        return render(
+            request,
+            "user_profile/profile.html",
+            context
+        )
 
 class AuthServiceV2():
 

@@ -6,7 +6,7 @@ from django.urls import path
 from .views import (
     UserLoginView,
     UserRegisterView,
-    # UserProfileView,
+    UserProfileTemplateView,
     UserLogoutView,
     UserRegistrationAPIView,
     UserLoginAPIView,
@@ -32,8 +32,8 @@ url_view_patterns = [
         name='logout'
     ),
     path(
-        'profile',
-        UserProfileAPIView.as_view(),
+        'user/profile',
+        UserProfileTemplateView.as_view(),
         name="profile"
     ),
     path(

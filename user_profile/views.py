@@ -3,6 +3,7 @@ from django.http import HttpResponseNotFound, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.contrib.auth import logout
 # from user_profile.serializers import (
 #     UserLoginSerializer,
 #     UserRegistrationSerializer,
@@ -11,7 +12,6 @@ from django.views import View
 from .models import User
 from .user_service import AuthServiceV1, AuthServiceV2
 
-from django.views import View
 
 class UserRegisterView(View):
     def post(self, request):
@@ -27,6 +27,13 @@ class UserLoginView(View):
     def get(self, request):
         return AuthServiceV1.get_login_form(request)
 
+
+class UserProfileTemplateView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return AuthServiceV1.get_profile(request)
+        else:
+            redirect("")
 
 
 def register_user(request):
@@ -56,7 +63,6 @@ def about(request):
         context=context
     )
 
-from django.contrib.auth import logout
 
 class UserLogoutView(View):
     

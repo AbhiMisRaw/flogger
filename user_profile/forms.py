@@ -11,13 +11,13 @@ class UserLoginForm(forms.Form):
         label="Email",
         required=True,
         widget=forms.TextInput(attrs={
-            "class": "input input-bordered w-full h-12 px-4 text-white leading-8"
+            "class": "input input-bordered w-full h-12 px-4 leading-8"
         })
     )
     password = forms.CharField(
         validators=[validators.MinLengthValidator(4)],
         widget=forms.PasswordInput(attrs={
-            "class": "input input-bordered w-full h-12 px-4 text-white leading-6"
+            "class": "input input-bordered w-full h-12 px-4 leading-6"
         })
     )
     
@@ -27,14 +27,14 @@ class UserRegisterForm(forms.Form):
         label="Full Name",
         required=True,
         widget=forms.TextInput(attrs={
-            "class": "input input-bordered w-full h-12 px-4 text-white leading-8"
+            "class": "input input-bordered w-full h-12 px-4 leading-8"
         })
     )
     email = forms.EmailField(
         label="Email",
         required=True,
         widget=forms.TextInput(attrs={
-            "class": "input input-bordered w-full h-12 px-4 text-white leading-8"
+            "class": "input input-bordered w-full h-12 px-4 leading-8"
         })
     )
     password = forms.CharField(
