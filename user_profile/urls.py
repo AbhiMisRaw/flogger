@@ -6,12 +6,15 @@ from django.urls import path
 from .views import (
     UserLoginView,
     UserRegisterView,
-    UserProfileView,
+    # UserProfileView,
     UserLogoutView,
+    UserRegistrationAPIView,
+    UserLoginAPIView,
+    UserProfileAPIView,
     about,
 )
 
-urlpatterns = [
+url_view_patterns = [
 
     path(
         'login',
@@ -30,7 +33,7 @@ urlpatterns = [
     ),
     path(
         'profile',
-        UserProfileView.as_view(),
+        UserProfileAPIView.as_view(),
         name="profile"
     ),
     path(
@@ -39,3 +42,18 @@ urlpatterns = [
         name="about"
     )
 ]
+
+url_api_patterns = [
+    path(
+        'api/v1/register',
+        UserRegistrationAPIView.as_view(),
+        name="register_api"
+    ),
+    path(
+        'api/v1/login',
+        UserLoginAPIView.as_view(),
+        name="login_api"
+    ),
+]
+
+urlpatterns = (url_view_patterns + url_api_patterns)

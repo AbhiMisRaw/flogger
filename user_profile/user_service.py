@@ -1,12 +1,33 @@
+import json
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, get_user_model
 from django import forms
 
-# from .serializers import UserLoginSerializer, UserRegistrationSerializer
 from .forms import UserLoginForm, UserRegisterForm
 from .constants import URL, Error
 
+from utils import (
+    JWTService,
+    Error as ErrorResponse,
+    Succes as SuccesResponse
+)
+
 User = get_user_model()
+
+
+class AuthCoreService():
+
+    @staticmethod
+    def create_user(full_name: str, email: str, password: str):
+        user = User.objects.create_user(
+            full_name=full_name,
+            email=email,
+            password=password,
+        )
+        print(f"{user} is created...")
+        return user
+        # TODO logging
+
 
 class AuthServiceV1():
 
@@ -111,3 +132,60 @@ class AuthServiceV1():
 
         login(request, user)
         return redirect("/flog/homepage")
+    
+
+class AuthServiceV2():
+
+
+    def login(self, request):
+        body = json.loads(request.body)
+
+        email = body.get("email")
+        password = body.get("password")
+
+        if not email or not password:
+            return ErrorResponse.send(
+                Error.LOGIN_ERROR
+            )
+        
+        user = authenticate(
+            request,
+            email=email,
+            password=password
+        )
+
+        if user:
+            data = {
+                "access": str(JWTService.create_access_token(user)),
+                "refresh": str(JWTService.create_refresh_token(user)),
+                "user": str(user.email),
+            }
+            return SuccesResponse.send(data)
+        else:
+            return ErrorResponse.send(
+                Error.LOGIN_ERROR,
+                status_code=401
+            )
+
+    def register(self, request):
+        body = json.loads(request.body)
+
+        full_name = body.get("full_name")
+        email = body.get("email")
+        password = body.get("password")
+        confirm_password = body.get("password")
+
+        if password != confirm_password:
+            return ErrorResponse.send(
+                Error.PASSWORD_MATCHING_ERROR
+            )
+        
+        _ = AuthCoreService().create_user(
+            full_name,
+            email,
+            password
+        )
+        data = {
+            "message":"User is successfully registered."
+        }
+        return SuccesResponse.send(data, 201)

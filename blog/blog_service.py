@@ -1,6 +1,6 @@
 import json
 from typing import List
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user_model
@@ -201,9 +201,11 @@ class BlogAPIService(BlogCoreService):
 
     @classmethod
     def handle_blog_creation(cls, request):
-        body = json.loads(request.body)
+        if not request.user.is_authenticated:
+            raise HttpResponseForbidden(content="Please login first")
         
-        user = User.objects.get(pk=1)
+        body = json.loads(request.body)
+        user = request.user
         body["status"] = body.get("status") or "draft"
         blog = BlogCoreService.create_blog(user, **body)
         return JsonResponse(blog.to_dict())

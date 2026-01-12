@@ -22,7 +22,6 @@ ALLOWED_HOSTS = [
     "flogger-4kpc.onrender.com",
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -32,13 +31,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # "rest_framework_simplejwt",
     "markdownify.apps.MarkdownifyConfig",
     "user_profile",
     "blog",
 ]
 
 MIDDLEWARE = [
+    'user_profile.middleware.JWTAuthenticationMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -112,30 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# JWT Setting
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     )
-# }
-
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-#     'ROTATE_REFRESH_TOKENS': False,
-#     'BLACKLIST_AFTER_ROTATION': True,
-#     'UPDATE_LAST_LOGIN': True,
-
-#     'ALGORITHM': 'HS256',
-#     'SIGNING_KEY': SECRET_KEY,
-
-#     'AUTH_HEADER_TYPES': ('Bearer',),
-#     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-#     'USER_ID_FIELD': 'id',
-#     'USER_ID_CLAIM': 'user_id',
-
-# }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -154,9 +129,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
-# listings/settings.py
-...
 AUTH_USER_MODEL = 'user_profile.User'
 
 CSRF_COOKIE_PATH = "/"   # ✅ safest
@@ -178,3 +150,9 @@ MARKDOWNIFY = {
         ],
     }
 }
+
+# settings.py
+JWT_SECRET = SECRET_KEY          # or separate secret
+JWT_ALGORITHM = "HS256"
+JWT_ACCESS_TTL = 15 * 60 * 60    # 15 minutes
+JWT_REFRESH_TTL = 7 * 24 * 3600  # 7 days

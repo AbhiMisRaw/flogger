@@ -1,18 +1,15 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseNotFound, JsonResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated
-from user_profile.serializers import (
-    UserLoginSerializer,
-    UserRegistrationSerializer,
-    UserSerializer
-)
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
+# from user_profile.serializers import (
+#     UserLoginSerializer,
+#     UserRegistrationSerializer,
+#     UserSerializer
+# )
 from .models import User
-from .user_service import AuthServiceV1
-from .forms import UserRegisterForm, UserLoginForm
-from user_profile.constants import Succes, Error
+from .user_service import AuthServiceV1, AuthServiceV2
 
 from django.views import View
 
@@ -67,31 +64,36 @@ class UserLogoutView(View):
         logout(request)
         return redirect('blog:home_page')
 
-
-class UserRegistrationView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class UserRegistrationAPIView(View):
 
     def post(self, request):
-        serialzer = UserRegistrationSerializer(data=request.data)
-        if serialzer.is_valid(raise_exception=True):
-            serialzer.save()
-            response = {
-                "message": Succes.USER_REGISTER
-            }
-            return Response(response)
-        else:
-            err = {
-                "message" : Error.SOMETHING_HAPPENED
-            }
-            return Response(err, status=400)
+        return AuthServiceV2().register(request)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserLoginAPIView(View):
+    
+    def post(self, request):
+        return AuthServiceV2().login(request)
 
 
-class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated,]
+class UserProfileAPIView(View):
     
     def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user).data
-
-        return JsonResponse(serializer)
+        print(request.user)
+        print(request.user.is_authenticated)
+        if request.user.is_authenticated:
+            user = request.user
+            data = {
+                "id":user.id,
+                "full_name":user.full_name,
+                "email":user.email
+            }
+        else:
+            data ={
+                "message":"Please login first."
+            }
+        return JsonResponse(data)
+    
 
 
