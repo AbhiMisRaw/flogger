@@ -17,3 +17,9 @@ python-jose = "^3.5.0"
 djangorestframework-simplejwt = "^5.5.1"
 gunicorn = "^23.0.0"
 django-markdownify = "^0.9.6"
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar (>=6.2.0,<7.0.0)",
+    "pytest (>=9.0.2,<10.0.0)"
+]

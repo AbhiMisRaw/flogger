@@ -1,8 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from urllib.parse import urlparse, parse_qsl
-from datetime import timedelta
+from urllib.parse import urlparse
 
 load_dotenv()
 
@@ -37,15 +36,41 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'user_profile.middleware.JWTAuthenticationMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'user_profile.middleware.JWTAuthenticationMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE.insert(
+        1,
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    )
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "DEV")
+
+if ENVIRONMENT == "PROD":
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=0.2,
+        send_default_pii=False,
+        environment=ENVIRONMENT,
+    )
 
 ROOT_URLCONF = 'flogger.urls'
 
@@ -66,11 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'flogger.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-
 # Replace the DATABASES section of your settings.py with this
 POSTGERS_CONFIG = urlparse(os.getenv("DATABASE_URL"))
 
@@ -82,13 +102,6 @@ DATABASES = {
         'PASSWORD': POSTGERS_CONFIG.password,
         'HOST': POSTGERS_CONFIG.hostname,
         'PORT': POSTGERS_CONFIG.port or 5432,
-        # neon DB
-        # 'NAME': POSTGERS_CONFIG.path.replace('/', ''),
-        # 'USER': POSTGERS_CONFIG.username,
-        # 'PASSWORD': POSTGERS_CONFIG.password,
-        # 'HOST': POSTGERS_CONFIG.hostname,
-        # 'PORT': 5432,
-        # 'OPTIONS': dict(parse_qsl(POSTGERS_CONFIG.query)),
     }
 }
 
@@ -144,15 +157,15 @@ MARKDOWNIFY = {
             'span', 'strong', 'em', 'br', 'ul', 'li', 'ol'
         ],
         "MARKDOWN_EXTENSIONS": [
-            "markdown.extensions.fenced_code",  # This handles the ``` blocks
-            "markdown.extensions.extra",        # Adds support for tables, etc.
-            "markdown.extensions.nl2br",        # Preserves your newlines
+            "markdown.extensions.fenced_code",
+            "markdown.extensions.extra",
+            "markdown.extensions.nl2br",
         ],
     }
 }
 
-# settings.py
-JWT_SECRET = SECRET_KEY          # or separate secret
+# JWT settings
+JWT_SECRET = SECRET_KEY
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TTL = 15 * 60 * 60    # 15 minutes
 JWT_REFRESH_TTL = 7 * 24 * 3600  # 7 days

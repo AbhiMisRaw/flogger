@@ -1,6 +1,6 @@
 import json
 from typing import List
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, Http404
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user_model
@@ -88,14 +88,17 @@ class BlogServiceV1:
     @staticmethod
     def get_blog(request, slug):
         blog = BlogQueryService.get_blog_by_slug(slug)
-        return render(
-            request,
-            "blogs/homepage.html",
-            {
-                "blog":blog,
-                "tab":"blog_page",
-            }
-        )
+        if blog:
+            return render(
+                request,
+                "blogs/homepage.html",
+                {
+                    "blog":blog,
+                    "tab":"blog_page",
+                }
+            )
+        else:
+            raise Http404("Page not found")
 
     @staticmethod
     def get_creation_form(request, blog: Blog = None):
