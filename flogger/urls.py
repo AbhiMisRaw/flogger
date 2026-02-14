@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponseBadRequest
+from django.conf import settings
 from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -12,14 +12,11 @@ def health_check(request):
     return JsonResponse(response, status=HTTPStatus.OK)
 
 def redirect_to_home(request):
-    raise HttpResponseBadRequest("Checking")
     return redirect("blog:home_page")
-
 
 def custom_404(request, exception):
     return render(request, "errors/404.html", status=404)
 
-    
 def custom_500(request):
     return render(request, "errors/500.html", status=500)
 
@@ -31,9 +28,6 @@ urlpatterns = [
     path("auth/flog/", include(("user_profile.urls", "user_profile"))),
     path("flog/", include(("blog.urls", "blog"))),
 ]
-
-
-from django.conf import settings
 
 if settings.DEBUG:
     import debug_toolbar
