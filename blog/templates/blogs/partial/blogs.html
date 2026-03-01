@@ -1,43 +1,54 @@
-<div id="blog-list">
 
-{% include 'navbar.html' %}
-
-{% if search %}
-    <p class="list-col-wrap text-xs">
-            {{ blogs|length }} blogs found.
-    </p>
+{% if query %}
+    <p class="text-xs mb-4 px-2">{{ blogs.paginator.count }} blogs found for "{{ query }}"</p>
 {% endif %}
-    <ul class="list bg-base-500 rounded-box shadow-md">
-        {% comment %} <div class="text-bold text-md">Some of the blogs</div> {% endcomment %}
-            {% for blog in blogs %}
-                <li class="m-auto p-3 list-row">
-                    <div class="card w-full card-md shadow-xl">
-                        <div class="card-body">
-                            <h2 class="card-title text-slate-900">
-                                <a href="{% url 'blog:get_blog_by_slug' blog.slug %}">{{ blog.title }}</a>
-                            </h2>
-                            <p class="text-slate-600 h-10">
-                                {{ blog.content|truncatewords:25 }}
-                                <a href="{% url 'blog:get_blog_by_slug' blog.slug %}" class="text-blue-700">read more...</a>
-                            </p>
-                            
-                            <div class="justify-between card-actions py-3">
-                                <div>
-                                {% for tag in blog.tags.all %}
-                                    {% comment %} <div class="mx-1 badge bg-indigo-100 text-indigo-500">{{ tag.name }}</div>
-                                     {% endcomment %}
-                                     <div class="badge badge-soft bg-indigo-100 text-indigo-600 text-xs font-semibold rounded-full uppercase tracking-wider">{{ tag.name }}</div>
-                                {% endfor %}
-                            </div>
-                            <div class="text-sm font-sans italic text-slate-500">
-                                - by {{blog.author.full_name}} | 
-                                <span class="antialiased not-italic">{{ blog.created_at|date:"M d, Y" }}</span>
-                            </div>
-                            </div>
+
+<ul class="grid grid-cols-1 gap-4">
+    {% for blog in blogs %}
+        <li class="list-none">
+            <div class="card w-full bg-white shadow-xl border border-base-300">
+                <div class="card-body">
+                    <h2 class="card-title text-slate-900">
+                        <a href="{% url 'blog:get_blog_by_slug' blog.slug %}">{{ blog.title }}</a>
+                    </h2>
+                    <p class="text-slate-600">
+                        {{ blog.content|truncatewords:25 }}
+                        <a href="{% url 'blog:get_blog_by_slug' blog.slug %}" class="text-blue-700 text-sm">read more...</a>
+                    </p>
+                    
+                    <div class="card-actions justify-between items-center mt-4">
+                        <div class="flex flex-wrap gap-2">
+                            {% for tag in blog.tags.all %}
+                                <button 
+                                    hx-get="{% url 'blog:home_page' %}?tag={{ tag.slug }}" 
+                                    hx-target="#blog-list"
+                                    hx-push-url="true"
+                                    class="badge badge-soft bg-indigo-100 text-indigo-600 text-xs font-semibold rounded-full uppercase">
+                                    {{ tag.name }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                        <div class="text-sm italic text-slate-500">
+                            - {{ blog.author.full_name }} | {{ blog.created_at|date:"M d, Y" }}
                         </div>
                     </div>
-                    
-                </li>
-            {% endfor %}
-            </ul>
+                </div>
+            </div>
+
+            {# Infinite Scroll Trigger: Only on the last item #}
+            {% if forloop.last and blogs.has_next %}
+                <div hx-get="{% url 'blog:home_page' %}?page={{ blogs.next_page_number }}{% if query %}&search={{ query }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}"
+                     hx-trigger="revealed"
+                     hx-swap="afterend"
+                     hx-indicator="#loading-spinner">
+                </div>
+            {% endif %}
+        </li>
+    {% empty %}
+        <div class="text-center p-10 text-gray-500">No blogs found.</div>
+    {% endfor %}
+</ul>
+
+<div id="loading-spinner" class="htmx-indicator flex justify-center p-4">
+    <span class="loading loading-dots loading-md text-indigo-400"></span>
 </div>

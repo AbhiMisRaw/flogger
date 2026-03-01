@@ -1,82 +1,101 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" class="bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Flogg</title>
+
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    
+    <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
 </head>
-<body>
-    <div class="w-[90%] md:w-[80%] lg:w-[75%] mx-auto">
 
-            <div class="navbar bg-indigo-400 shadow-xl text-white rounded shadow-blue-800/60">
-                <div class="flex-1">
-                    <a href="{% url 'blog:home_page' %}" class="btn btn-ghost text-xl">Flogg</a>
+<body class="min-h-screen flex flex-col font-sans text-slate-800 antialiased bg-slate-50">
+    
+    <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-white/80 border-b border-slate-200 transition-all shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="navbar min-h-[4rem] px-0 flex justify-between">
+                
+                <div class="flex-none">
+                    <a href="{% url 'blog:home_page' %}" class="text-2xl font-black tracking-tight text-indigo-600 hover:text-indigo-700 transition-colors">
+                        Flogg<span class="text-slate-900">.</span>
+                    </a>
                 </div>
-                <div class="flex gap-2">
-                    <input 
-                        type="text" 
-                        name="search" 
-                        placeholder="Search" 
-                        class="input input-bordered text-gray-700 w-24 md:w-auto"
-                        hx-get={% url 'blog:search' %}
-                        hx-trigger="keyup"
-                        hx-target="#blog-list"
-                    />
+
+                <div class="flex-none flex items-center gap-2 sm:gap-4">
+                    
+                    <div class="form-control relative hidden sm:block">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="search" name="search" placeholder="Search..." 
+                            class="input input-sm h-10 pl-9 pr-4 bg-slate-100 border-transparent focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-full w-48 lg:w-64 transition-all text-sm text-slate-700"
+                            hx-get="{% url 'blog:home_page' %}" hx-trigger="keyup changed delay:400ms, search" hx-target="#blog-list" />
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center gap-1 border-x border-slate-200 px-2 sm:px-4 ml-2">
+                        <a href="{% url 'blog:home_page' %}" title="Home Feed" 
+                           class="p-2 rounded-lg transition-colors {% if tab == 'homepage' %} text-indigo-600 bg-indigo-50 {% else %} text-slate-400 hover:text-indigo-600 hover:bg-slate-100 {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </a>
+                        
+                        <a href="{% url 'blog:create_blog' %}" title="Create Post" 
+                           class="p-2 rounded-lg transition-colors {% if tab == 'create' %} text-indigo-600 bg-indigo-50 {% else %} text-slate-400 hover:text-indigo-600 hover:bg-slate-100 {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M 12 0.96 C 5.908 0.96 0.96 5.908 0.96 12 C 0.96 18.092 5.908 23.04 12 23.04 C 18.092 23.04 23.04 18.092 23.04 12 C 23.04 5.908 18.092 0.96 12 0.96 Z M 12 1.92 C 17.5727 1.92 22.08 6.4273 22.08 12 C 22.08 17.5727 17.5727 22.08 12 22.08 C 6.4273 22.08 1.92 17.5727 1.92 12 C 1.92 6.4273 6.4273 1.92 12 1.92 Z M 11.52 6.24 L 11.52 11.52 L 6.24 11.52 L 6.24 12.48 L 11.52 12.48 L 11.52 17.76 L 12.48 17.76 L 12.48 12.48 L 17.76 12.48 L 17.76 11.52 L 12.48 11.52 L 12.48 6.24 Z"/>
+                            </svg>
+                        </a>
+                        
+                        <a href="#" title="Trending" 
+                           class="p-2 rounded-lg transition-colors {% if tab == 'saved' %} text-indigo-600 bg-indigo-50 {% else %} text-slate-400 hover:text-indigo-600 hover:bg-slate-100 {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </a>
+                    </div>
+                    {% endif %}
+
                     <div class="dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                            <div class="w-10 rounded-full">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                    <path
-                                        fill-rule="evenodd"
-                                        clip-rule="evenodd"
-                                        d="M16 9C16 11.2091 14.2091 13 12 13C9.79086 13 8 11.2091 8 9C8 6.79086 9.79086 5 12 5C14.2091 5 16 6.79086 16 9ZM14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        fill-rule="evenodd"
-                                        clip-rule="evenodd"
-                                        d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM3 12C3 14.0902 3.71255 16.014 4.90798 17.5417C6.55245 15.3889 9.14627 14 12.0645 14C14.9448 14 17.5092 15.3531 19.1565 17.4583C20.313 15.9443 21 14.0524 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12ZM12 21C9.84977 21 7.87565 20.2459 6.32767 18.9878C7.59352 17.1812 9.69106 16 12.0645 16C14.4084 16 16.4833 17.1521 17.7538 18.9209C16.1939 20.2191 14.1881 21 12 21Z"
-                                        fill="currentColor"
-                                    />
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
+                            <div class="w-9 rounded-full text-indigo-600 flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 m-auto mt-2" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16 9C16 11.2091 14.2091 13 12 13C9.79086 13 8 11.2091 8 9C8 6.79086 9.79086 5 12 5C14.2091 5 16 6.79086 16 9ZM14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9Z" fill="currentColor" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM3 12C3 14.0902 3.71255 16.014 4.90798 17.5417C6.55245 15.3889 9.14627 14 12.0645 14C14.9448 14 17.5092 15.3531 19.1565 17.4583C20.313 15.9443 21 14.0524 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12ZM12 21C9.84977 21 7.87565 20.2459 6.32767 18.9878C7.59352 17.1812 9.69106 16 12.0645 16C14.4084 16 16.4833 17.1521 17.7538 18.9209C16.1939 20.2191 14.1881 21 12 21Z" fill="currentColor" />
                                 </svg>
                             </div>
                         </div>
-                        <ul
-                            tabindex="-1"
-                            class="menu menu-sm dropdown-content text-black rounded-box z-50 mt-3 w-52 p-2 shadow">
-                        {% if user.is_authenticated %}
-                            <li><a href="{% url 'user_profile:profile' %}" class="flex items-center gap-2">Profile</a></li>
-                            <li><a class="flex items-center gap-2" href="">Settings</a></li>
-                            <li><a href={% url 'user_profile:logout' %} class="flex items-center gap-2" href="">Logout</a></li>
-                        {% else %}
-                        
-                            <li><a class="flex items-center gap-2" href="{% url 'user_profile:login' %}">Login</a> </li>
-                            <li><a class="flex items-center gap-2" href="{% url 'user_profile:register' %}">Sign Up</a> </li>
-                        {% endif %}
+                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-white border border-slate-100 rounded-xl z-50 mt-4 w-52 p-2 shadow-xl shadow-slate-200/50">
+                            {% if user.is_authenticated %}
+                                <li><a href="{% url 'user_profile:profile' %}" class="hover:bg-indigo-50 rounded-lg py-2">Profile</a></li>
+                                <li><a href="{% url 'user_profile:logout' %}" class="text-red-600 hover:bg-red-50 rounded-lg py-2">Logout</a></li>
+                            {% else %}
+                                <li><a href="{% url 'user_profile:login' %}" class="hover:bg-indigo-50 rounded-lg py-2">Login</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
             </div>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {% block content %}
-
         {% endblock %}
-    </div>
-        
-</body>
-<footer class="w-[90%] md:w-[80%] lg:w-[75%] mx-auto mt-20 border-t border-base-300 bg-base-100">
-  <div class="max-w-6xl mx-auto px-6 py-12">
+    </main>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+    
+    <footer class="mt-auto border-t border-slate-200 bg-white py-8">
+        <div class="max-w-5xl mx-auto px-4 text-center text-slate-500 text-sm">
+            {% comment %} &copy; {% now "Y" %} Flogg.  {% endcomment %}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 
       <!-- Brand -->
       <div class="space-y-4">
@@ -122,7 +141,13 @@
     <div class="mt-12 pt-6 border-t border-base-300 text-center text-sm text-base-content/60">
       © {{ now|date:"Y" }} Flogg · Built with ❤️ by <span class="font-medium">@abhiimiishra</span>
     </div>
+        </div>
+    </footer> 
 
-  </div>
-</footer>
+</body>
+
 </html>
+
+<div>
+
+</div>

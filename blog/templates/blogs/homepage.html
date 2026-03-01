@@ -1,5 +1,13 @@
+
 {% extends "base.html" %}
 
+{% block content %}
+    <div id="blog-list">
+        {% include 'blogs/partial/blogs.html' %}
+    </div>
+{% endblock %}
+
+{% comment %} {% extends "base.html" %}
 
 {% block content %}
 
@@ -14,4 +22,5 @@
     </div>
     {% endif %}
 
-{% endblock %}
+{% endblock %} {% endcomment %}
+

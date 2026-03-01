@@ -1,6 +1,6 @@
 import json
-from typing import List
 from django.http import JsonResponse, HttpResponseForbidden, Http404
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user_model
@@ -91,7 +91,7 @@ class BlogServiceV1:
         if blog:
             return render(
                 request,
-                "blogs/homepage.html",
+                "blogs/blog.html",
                 {
                     "blog":blog,
                     "tab":"blog_page",
@@ -116,9 +116,7 @@ class BlogServiceV1:
 
     @staticmethod
     def create_blog(request):
-        form, is_valid = BlogServiceV1.validate_form(
-            request.POST, BlogForm
-        )
+        form, is_valid = BlogServiceV1.validate_form(request.POST, BlogForm)
 
         if not is_valid:
             return render(
@@ -129,11 +127,20 @@ class BlogServiceV1:
 
         data = form.cleaned_data
         action = request.POST.get("action")
-        tags = request.POST.get("tags", "").split(",")
+        
+        # Safely handle tags (removing empty spaces)
+        raw_tags = request.POST.get("tags", "")
+        tags = [t.strip() for t in raw_tags.split(",") if t.strip()]
 
+        # Validate tags ONLY if publishing
         if action == "publish" and not (3 <= len(tags) <= 5):
-            messages.error(request, "Tags must be between 3 and 5.")
-            return redirect("blog:create")
+            messages.error(request, "Please provide between 3 and 5 tags to publish.")
+            # CRITICAL FIX: Render the form again so the user doesn't lose their writing!
+            return render(
+                request,
+                "blogs/blog-editor.html",
+                {"form": form, "tab": "create"},
+            )
 
         blog = BlogCoreService.create_blog(
             title=data["title"],
@@ -143,48 +150,65 @@ class BlogServiceV1:
             tags=tags,
         )
 
-        messages.success(
-            request,
-            "Draft saved successfully."
-            if action == "draft"
-            else "Blog published successfully.",
-        )
-        return redirect("/flog/homepage")
+        if action == "draft":
+            messages.success(request, "Draft saved successfully.")
+        else:
+            messages.success(request, "Blog published successfully!")
+            
+        return redirect("blog:home_page")
+
+
+    @staticmethod
+    def get_blogs(page_number=1, blog_obj=10, query=None, tag_slug=None, status=None, user=None):
+        # 1. Start with the most restrictive base (always order)
+        blogs_queryset = Blog.objects.all().order_by('-created_at')
+
+        # 2. Chain filters (Don't overwrite, just append .filter)
+        if status:
+            blogs_queryset = blogs_queryset.filter(status=status)
+        
+        if user:
+            blogs_queryset = blogs_queryset.filter(author=user)
+
+        if query:
+            blogs_queryset = blogs_queryset.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            )
+
+        if tag_slug:
+            blogs_queryset = blogs_queryset.filter(tags__slug=tag_slug)
+
+        # 3. Paginate the final result
+        paginator = Paginator(blogs_queryset, blog_obj)
+        return paginator.get_page(page_number)
 
     @staticmethod
     def get_homepage(request):
-        query = request.GET.get("search","")
-        if query:
-            # filtering the blogs
-            results = Blog.objects.filter(
-                Q(title__icontains=query) | Q(content__icontains=query)
-            ).filter(
-                status=BlogStatus.PUBLISHED.value
-            )
-            return render(
-                request,
-                "blogs/partial/blogs.html",
-                {
-                    "blogs":results,
-                    "query":query,
-                    "tab":"homepage",
-                }
-            )
+        query = request.GET.get("search", "")
+        tag_slug = request.GET.get("tag", "")
+        page_number = request.GET.get("page", 1)
         
-        blogs = BlogQueryService.fetch_blogs(
-            user_id=request.GET.get("user"),
-            status=request.GET.get("status"),
+        # Use your existing get_blogs logic here
+        page_obj = BlogServiceV1.get_blogs(
+            page_number=page_number,
+            query=query,
+            tag_slug=tag_slug,
+            status=BlogStatus.PUBLISHED.value
         )
+
         context = {
-            "homepage":"active",
-            "blogs":blogs,
-            "tab":"homepage",
+            "blogs": page_obj,
+            "query": query,
+            "selected_tag": tag_slug,
         }
-        return render(
-            request,
-            "blogs/homepage.html",
-            context=context
-        )
+
+        # If HTMX is requesting, just send the partial
+        if request.htmx:
+            return render(request, "blogs/partial/blogs.html", context)
+
+        # Otherwise, send the full page
+        return render(request, "blogs/homepage.html", context)
+
 
     def update_blog(self, request, blog_id):
         pass

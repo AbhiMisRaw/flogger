@@ -1,3 +1,8 @@
+
+
+{% extends "base.html" %}
+
+{% block content %}
 {% load markdownify %}
 
 <div class=" mx-auto px-4 py-8 bg-white">
@@ -8,11 +13,7 @@
         </h1>
         
         <div class="flex flex-col md:flex-row md:items-center justify-between border-y border-gray-100 py-4 text-sm text-gray-500">
-            <div class="flex items-center space-x-2">
-                <span class="font-medium text-gray-900">By {{ blog.author.full_name }}</span>
-                <span class="text-gray-300">•</span>
-                <span>{{ blog.created_at|date:"M d, Y" }}</span>
-            </div>
+            
             
             <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
                 {% for tag in blog.tags.all %}
@@ -20,6 +21,12 @@
                     {{ tag.name }}
                 </span>
                 {% endfor %}
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-900">By {{ blog.author.full_name }}</span>
+                <span class="text-gray-300">•</span>
+                <span>{{ blog.created_at|date:"M d, Y" }}</span>
             </div>
         </div>
     </header>
@@ -36,3 +43,5 @@
         </a>
     </div>
 </div>
+
+ {% endblock %}

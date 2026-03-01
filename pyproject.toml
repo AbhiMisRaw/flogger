@@ -18,6 +18,7 @@ djangorestframework-simplejwt = "^5.5.1"
 gunicorn = "^23.0.0"
 django-markdownify = "^0.9.6"
 sentry-sdk = "^2.52.0"
+django_htmx = "^1.26.0"
 
 [dependency-groups]
 dev = [

@@ -29,6 +29,11 @@ class Tag(models.Model):
         return self.name
 
 
+class BlogManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Blog(models.Model):
     """Model for Blpg model."""
     title = models.CharField(max_length=200)
@@ -56,6 +61,9 @@ class Blog(models.Model):
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # custom manager
+    objects = BlogManager()
 
     def save(self, *args, **kwargs):
         if not self.slug or len(self.slug) == 0:
