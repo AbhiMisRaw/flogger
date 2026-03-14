@@ -1,0 +1,5 @@
+.env
+script.sh
+logs.txt
+.dockerignore
+.gitignore

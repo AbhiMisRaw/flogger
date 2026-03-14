@@ -5,6 +5,21 @@ from urllib.parse import urlparse
 
 load_dotenv()
 
+
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ... existing settings ...
+STATIC_URL = 'static/'
+# This is the line you are missing:
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'staticfiles'))
+
+# Optional: If you have a global static folder for your project
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,6 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
+    "0.0.0.0",
     "localhost",
     "127.0.0.1",
     "flogger-4kpc.onrender.com",
@@ -50,6 +66,7 @@ MIDDLEWARE = [
 
 
 if DEBUG:
+    print('===== -----* DEBUG ENVIRONMENT *----- =====')
     INSTALLED_APPS += ["debug_toolbar"]
     MIDDLEWARE.insert(
         1,
@@ -94,22 +111,38 @@ TEMPLATES = [
 WSGI_APPLICATION = 'flogger.wsgi.application'
 
 # Replace the DATABASES section of your settings.py with this
-POSTGERS_CONFIG = urlparse(os.getenv("DATABASE_URL"))
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': POSTGERS_CONFIG.path.lstrip('/'),
-        'USER': POSTGERS_CONFIG.username,
-        'PASSWORD': POSTGERS_CONFIG.password,
-        'HOST': POSTGERS_CONFIG.hostname,
-        'PORT': POSTGERS_CONFIG.port or 5432,
+if DATABASE_URL:
+    # Production (Neon / hosted postgres)
+    config = urlparse(DATABASE_URL)
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config.path.lstrip("/"),
+            "USER": config.username,
+            "PASSWORD": config.password,
+            "HOST": config.hostname,
+            "PORT": config.port or 5432,
+            "OPTIONS": {
+                "sslmode": os.getenv("NEON_SSL","disable"),   # required for Neon
+            },
+        }
     }
-}
 
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+else:
+    # Local postgres
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME", "flog_db"),
+            "USER": os.getenv("DB_USER", "flog_user"),
+            "PASSWORD": os.getenv("DB_PASS", "django_pass"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -146,7 +179,7 @@ STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'user_profile.User'
 
-CSRF_COOKIE_PATH = "/"   # ✅ safest
+CSRF_COOKIE_PATH = "/"
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",

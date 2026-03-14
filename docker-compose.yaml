@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django_user -d django_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: django_db
+      POSTGRES_USER: django_user
+      POSTGRES_PASSWORD: django_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    
+  web:
+    image: abhidevmishra/flogger:1.1
+    container_name: django_app
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      STATIC_ROOT: /app/staticfiles
+      DB_NAME: django_db
+      DB_USER: django_user
+      DB_PASSWORD: django_pass
+      DB_HOST: db
+      DB_PORT: 5432
+      DEBUG: True
+      DATABASE_URL: postgresql://django_user:django_pass@db:5432/django_db
+      SECRET_KEY: django-secure-i3owxe#evazp-fskh0987a=6l8%9lvb*syeabhishekjn9tx-%j$l4ofvti^0(
+      ENVIRONMENT: DEV
+      
+    volumes:
+      - static_volume:/app/staticfiles # Django puts files here
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # You will eventually add Nginx here
+  nginx:
+    image: nginx:latest
+    volumes:
+      - static_volume:/var/www/static:ro # Nginx reads from the same place
+    ports:
+      - "80:80"
+
+volumes:
+  static_volume:
+  postgres_data:
