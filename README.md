@@ -1,5 +1,18 @@
 ## Flogg.
-📝 Flog (Blog-Flog) AppFlog is a high-performance, containerized blogging platform built with Python 3.12, Django, and PostgreSQL. It is architected for production-grade stability using Gunicorn as the application server and Nginx as a reverse proxy to serve static assets efficiently.🚀 FeaturesModern Backend: Powered by Django and Poetry for dependency management.Production Ready: Multi-stage Docker setup with Nginx and Gunicorn.Automated Workflow: Custom entrypoint.sh handles database migrations and static file collection automatically on startup.Secure Networking: Isolated database and application containers; only Nginx is exposed to the public.Developer Friendly: Integrated with Sentry for error tracking and Django Debug Toolbar for local profiling.🛠 PrerequisitesDockerDocker ComposePoetry (for local development)🏗 
+📝 Flog (Blog-Flog) AppFlog is a high-performance, containerized blogging platform built with
+
+- **Python 3.12**
+- Django
+- PostgreSQL 
+
+It is architected for production-grade stability using **Gunicorn** as the application server and Nginx as a reverse proxy to serve static assets efficiently.
+
+## 🚀 FeaturesModern Backend: 
+Powered by Django and Poetry for dependency management.Production Ready: Multi-stage Docker setup with Nginx and Gunicorn.Automated Workflow: Custom entrypoint.sh handles database migrations and static file collection automatically on startup.Secure Networking: Isolated database and application containers; only Nginx is exposed to the public.
+
+🛠 Prerequisites 
+- Docker/Docker Compose
+- Poetry (for local development) 
 
 ### Installation & Setup
 
