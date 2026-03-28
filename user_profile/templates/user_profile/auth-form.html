@@ -42,20 +42,6 @@
                     {% include 'user_profile/partials/register.html' %}
                 {% endif %}
 
-                {% comment %} <p class="text-sm text-gray-400 text-center mt-6">
-                    {% if action == 'login' %}
-                        Don’t have an account?
-                        <a href="?action=register" class="text-indigo-400 hover:underline">
-                            Create one
-                        </a>
-                    {% else %}
-                        Already have an account?
-                        <a href="?action=login" class="text-indigo-400 hover:underline">
-                            Sign in
-                        </a>
-                    {% endif %}
-                </p> {% endcomment %}
-
             </div>
         </div>
 
@@ -64,33 +50,3 @@
 </div>
 
 {% endblock %}
-
-
-{% comment %} {% extends "base.html" %}
-
-{% block content %}
-
-<div class="min-h-screen flex items-center justify-center -translate-y-8">
-    
-        <div class="hero-content w-full flex flex-col lg:flex-row">
-            <div class="w-[50%]  text-center lg:text-center">
-                
-                <h1 class="text-5xl font-bold text-white">Welcome to <span class="text-white">Flogger</span></h1>
-
-                <p class="py-6 text-white">
-                    Welcome back. Sign in or create an account to get started
-                    with your blogging journey.
-                </p>
-            </div>
-            <div>
-                {% if action == 'login' %}
-                    {% include 'user_profile/partials/login.html' %}
-                {% else %}
-                    {% include 'user_profile/partials/register.html' %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-{% endblock %} {% endcomment %}
