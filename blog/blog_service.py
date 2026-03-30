@@ -12,70 +12,55 @@ from .models import Blog, BlogStatus, Tag
 
 User = get_user_model()
 
-
 class BlogCoreService:
-    """
-    Pure business logic.
-    Can be reused by MVT views, DRF APIs, Celery, CLI, tests.
-    """
-
+    """Write Only"""
     @staticmethod
-    def create_blog(
-        author,
-        title: str,
-        content: str,
-        status: str,
-        tags: list[str] | None = None,
-    ) -> Blog:
-        status = (
-            BlogStatus.DRAFT.value
-            if status == "draft"
-            else BlogStatus.PUBLISHED.value
-        )
-        print(tags)
+    def create_blog(author, title, content, status, tags=None):
+        # Map string "publish" from UI to DB Integer/Enum
+        status = BlogStatus.PUBLISHED.value if status == "publish" else BlogStatus.DRAFT.value
+        
         with transaction.atomic():
             blog = Blog.objects.create(
-                title=title,
-                content=content,
-                status=status,
-                author=author,
+                title=title, content=content, status=status, author=author
             )
-
             if tags:
-                tag_objs = [
-                    Tag.objects.get_or_create(name=tag.strip())[0]
-                    for tag in tags
-                ]
+                tag_objs = [Tag.objects.get_or_create(name=t.strip())[0] for t in tags]
                 blog.tags.add(*tag_objs)
-
         return blog
 
+    @staticmethod
+    def update_blog(blog_id, actor, **data):
+        # Permission logic belongs here
+        blog = Blog.objects.get(id=blog_id)
+        if blog.author != actor:
+            raise PermissionError("You cannot edit this blog.")
+        # ... update logic ...
+        # TODO
+        pass
+
 class BlogQueryService:
+    """Get Only"""
 
     @staticmethod
-    def get_blog_by_slug(slug: str) -> Blog | None:
-        return (
-            Blog.objects
-            .filter(slug=slug)
-            .select_related("author")
-            .prefetch_related("tags")
-            .first()
-        )
+    def fetch_blogs(query=None, tag_slug=None, status=None, user=None, page=1, page_size=10):
+        # Start with an optimized queryset
+        qs = Blog.objects.select_related("author").prefetch_related("tags").order_by('-created_at')
+
+        if status:
+            qs = qs.filter(status=status)
+        if user:
+            qs = qs.filter(author=user)
+        if query:
+            qs = qs.filter(Q(title__icontains=query) | Q(content__icontains=query))
+        if tag_slug:
+            # .distinct() is crucial when filtering by M2M tags to avoid duplicates
+            qs = qs.filter(tags__slug=tag_slug).distinct()
+
+        return Paginator(qs, page_size).get_page(page)
 
     @staticmethod
-    def fetch_blogs(*, user_id=None, status=None):
-        status = status or BlogStatus.PUBLISHED.value
-
-        qs = Blog.objects.filter(status=status)
-
-        if user_id:
-            qs = qs.filter(author_id=user_id)
-
-        return (
-            qs.select_related("author")
-              .prefetch_related("tags")
-              .order_by("-created_at")
-        )
+    def get_by_slug(slug):
+        return Blog.objects.filter(slug=slug).filter(status=BlogStatus.PUBLISHED).first()
 
 
 class BlogServiceV1:
@@ -87,7 +72,7 @@ class BlogServiceV1:
 
     @staticmethod
     def get_blog(request, slug):
-        blog = BlogQueryService.get_blog_by_slug(slug)
+        blog = BlogQueryService.get_by_slug(slug)
         if blog:
             return render(
                 request,
@@ -116,71 +101,27 @@ class BlogServiceV1:
 
     @staticmethod
     def create_blog(request):
-        form, is_valid = BlogServiceV1.validate_form(request.POST, BlogForm)
+        form = BlogForm(request.POST)
+        if not form.is_valid():
+            return render(request, "blogs/blog-editor.html", {"form": form, "tab": "create"})
 
-        if not is_valid:
-            return render(
-                request,
-                "blogs/blog-editor.html",
-                {"form": form, "tab": "create"},
-            )
-
-        data = form.cleaned_data
         action = request.POST.get("action")
-        
-        # Safely handle tags (removing empty spaces)
-        raw_tags = request.POST.get("tags", "")
-        tags = [t.strip() for t in raw_tags.split(",") if t.strip()]
+        tags = [t.strip() for t in request.POST.get("tags", "").split(",") if t.strip()]
 
-        # Validate tags ONLY if publishing
-        if action == "publish" and not (3 <= len(tags) <= 5):
-            messages.error(request, "Please provide between 3 and 5 tags to publish.")
-            # CRITICAL FIX: Render the form again so the user doesn't lose their writing!
-            return render(
-                request,
-                "blogs/blog-editor.html",
-                {"form": form, "tab": "create"},
+        try:
+            BlogCoreService.create_blog(
+                author=request.user,
+                title=form.cleaned_data["title"],
+                content=form.cleaned_data["content"],
+                status=action,
+                tags=tags
             )
+            messages.success(request, f"Successfully {action}ed!")
+            return redirect("blog:home_page")
+        except ValueError as e:
+            messages.error(request, str(e))
+            return render(request, "blogs/blog-editor.html", {"form": form, "tab": "create"})
 
-        blog = BlogCoreService.create_blog(
-            title=data["title"],
-            content=data["content"],
-            author=request.user,
-            status=action,
-            tags=tags,
-        )
-
-        if action == "draft":
-            messages.success(request, "Draft saved successfully.")
-        else:
-            messages.success(request, "Blog published successfully!")
-            
-        return redirect("blog:home_page")
-
-
-    @staticmethod
-    def get_blogs(page_number=1, blog_obj=10, query=None, tag_slug=None, status=None, user=None):
-        # 1. Start with the most restrictive base (always order)
-        blogs_queryset = Blog.objects.all().order_by('-created_at')
-
-        # 2. Chain filters (Don't overwrite, just append .filter)
-        if status:
-            blogs_queryset = blogs_queryset.filter(status=status)
-        
-        if user:
-            blogs_queryset = blogs_queryset.filter(author=user)
-
-        if query:
-            blogs_queryset = blogs_queryset.filter(
-                Q(title__icontains=query) | Q(content__icontains=query)
-            )
-
-        if tag_slug:
-            blogs_queryset = blogs_queryset.filter(tags__slug=tag_slug)
-
-        # 3. Paginate the final result
-        paginator = Paginator(blogs_queryset, blog_obj)
-        return paginator.get_page(page_number)
 
     @staticmethod
     def get_homepage(request):
@@ -188,26 +129,17 @@ class BlogServiceV1:
         tag_slug = request.GET.get("tag", "")
         page_number = request.GET.get("page", 1)
         
-        # Use your existing get_blogs logic here
-        page_obj = BlogServiceV1.get_blogs(
-            page_number=page_number,
+        page_obj = BlogQueryService.fetch_blogs(
+            page=page_number,
             query=query,
             tag_slug=tag_slug,
             status=BlogStatus.PUBLISHED.value
         )
 
-        context = {
-            "blogs": page_obj,
-            "query": query,
-            "selected_tag": tag_slug,
-        }
-
-        # If HTMX is requesting, just send the partial
-        if request.htmx:
-            return render(request, "blogs/partial/blogs.html", context)
-
-        # Otherwise, send the full page
-        return render(request, "blogs/homepage.html", context)
+        context = {"blogs": page_obj, "query": query, "selected_tag": tag_slug}
+        
+        template = "blogs/partial/blogs.html" if request.htmx else "blogs/homepage.html"
+        return render(request, template, context)
 
 
     def update_blog(self, request, blog_id):
