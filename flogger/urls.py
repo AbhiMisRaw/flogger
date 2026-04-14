@@ -27,6 +27,7 @@ urlpatterns = [
     path("about/", health_check),
     path("auth/flog/", include(("user_profile.urls", "user_profile"))),
     path("flog/", include(("blog.urls", "blog"))),
+    path("task/", include(("task.urls", "task"))),
 ]
 
 if settings.DEBUG:

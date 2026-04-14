@@ -25,7 +25,6 @@ class AuthCoreService():
             email=email,
             password=password,
         )
-        print(f"{user} is created...")
         return user
         # TODO logging
 

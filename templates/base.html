@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.22/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
 </head>
 
@@ -38,7 +38,7 @@
                             hx-get="{% url 'blog:home_page' %}" hx-trigger="keyup changed delay:400ms, search" hx-target="#blog-list" />
                     </div>
 
-                    {% if user.is_authenticated %}
+                    {% if user %}
                     <div class="flex items-center gap-1 border-x border-slate-200 px-2 sm:px-4 ml-2">
                         <a href="{% url 'blog:home_page' %}" title="Home Feed" 
                            class="p-2 rounded-lg transition-colors {% if tab == 'homepage' %} text-indigo-600 bg-indigo-50 {% else %} text-slate-400 hover:text-indigo-600 hover:bg-slate-100 {% endif %}">

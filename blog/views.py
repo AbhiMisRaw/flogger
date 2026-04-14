@@ -10,11 +10,13 @@ from .blog_service import BlogServiceV1, BlogAPIService
 
 
 class BlogHome(View):
+    view_is_async = True
     def get(self, request):
         return BlogServiceV1.get_homepage(request)
 
 
 class SingleBlogSlugView(View):
+    view_is_async = True
     def get(self, request, slug: str):
         return BlogServiceV1.get_blog(request, slug)
 

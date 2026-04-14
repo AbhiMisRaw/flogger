@@ -1,14 +1,17 @@
 import json
 from django.http import JsonResponse, HttpResponseForbidden, Http404
-from django.core.paginator import Paginator
 from django.contrib import messages
-from django.shortcuts import redirect, render
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.core.paginator import Paginator, AsyncPaginator
+
+from django.shortcuts import redirect, render
 from django.db import transaction
 from django.db.models import Q
 
 from .forms import BlogForm
 from .models import Blog, BlogStatus, Tag
+
 
 User = get_user_model()
 
@@ -38,11 +41,12 @@ class BlogCoreService:
         # TODO
         pass
 
+
 class BlogQueryService:
     """Get Only"""
 
     @staticmethod
-    def fetch_blogs(query=None, tag_slug=None, status=None, user=None, page=1, page_size=10):
+    async def fetch_blogs(query=None, tag_slug=None, status=None, user=None, page=1, page_size=10):
         # Start with an optimized queryset
         qs = Blog.objects.select_related("author").prefetch_related("tags").order_by('-created_at')
 
@@ -56,11 +60,12 @@ class BlogQueryService:
             # .distinct() is crucial when filtering by M2M tags to avoid duplicates
             qs = qs.filter(tags__slug=tag_slug).distinct()
 
-        return Paginator(qs, page_size).get_page(page)
+        paginator = AsyncPaginator(qs, page_size)
+        return await paginator.aget_page(page)
 
     @staticmethod
     def get_by_slug(slug):
-        return Blog.objects.filter(slug=slug).filter(status=BlogStatus.PUBLISHED).first()
+        return Blog.objects.filter(slug=slug).filter(status=BlogStatus.PUBLISHED).afirst()
 
 
 class BlogServiceV1:
@@ -71,8 +76,9 @@ class BlogServiceV1:
         return form, form.is_valid()
 
     @staticmethod
-    def get_blog(request, slug):
-        blog = BlogQueryService.get_by_slug(slug)
+    async def get_blog(request, slug):
+        blog = await BlogQueryService.get_by_slug(slug)
+        user = await request.auser()
         if blog:
             return render(
                 request,
@@ -80,6 +86,7 @@ class BlogServiceV1:
                 {
                     "blog":blog,
                     "tab":"blog_page",
+                    "user":user,
                 }
             )
         else:
@@ -124,19 +131,28 @@ class BlogServiceV1:
 
 
     @staticmethod
-    def get_homepage(request):
+    async def get_homepage(request):
         query = request.GET.get("search", "")
         tag_slug = request.GET.get("tag", "")
         page_number = request.GET.get("page", 1)
-        
-        page_obj = BlogQueryService.fetch_blogs(
+        user = await request.auser()
+        print("User : ", user)
+        page_obj = await BlogQueryService.fetch_blogs(
             page=page_number,
             query=query,
             tag_slug=tag_slug,
             status=BlogStatus.PUBLISHED.value
         )
+        # 2. CRITICAL FIX: Manually await the object list realization
+        # This pre-fetches the results so the template doesn't have to 'await'
+        await page_obj.aget_object_list()
 
-        context = {"blogs": page_obj, "query": query, "selected_tag": tag_slug}
+        context = {
+            "blogs": page_obj,
+            "query": query,
+            "selected_tag": tag_slug,
+            "user":user if user is not AnonymousUser else None
+            }
         
         template = "blogs/partial/blogs.html" if request.htmx else "blogs/homepage.html"
         return render(request, template, context)
@@ -149,9 +165,9 @@ class BlogServiceV1:
 class BlogAPIService(BlogCoreService):
 
     @staticmethod
-    def get_blogs(request):
+    async def get_blogs(request):
         
-        blogs = BlogQueryService.fetch_blogs(
+        blogs = await BlogQueryService.fetch_blogs(
             user_id=request.GET.get("user"),
             status=request.GET.get("status"),
         )
