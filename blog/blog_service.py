@@ -136,7 +136,7 @@ class BlogServiceV1:
         tag_slug = request.GET.get("tag", "")
         page_number = request.GET.get("page", 1)
         user = await request.auser()
-        print("User : ", user)
+        
         page_obj = await BlogQueryService.fetch_blogs(
             page=page_number,
             query=query,

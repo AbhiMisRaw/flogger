@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from urllib.parse import quote
 from django.shortcuts import render, redirect
 from asgiref.sync import sync_to_async
@@ -11,6 +12,9 @@ from blog.models import Blog
 from .models import BlogConversionTask
 from .service import ConversionService
 
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 class BlogConversionView(View):
     service = ConversionService()
@@ -68,13 +72,10 @@ class BlogConversionView(View):
             result = await self.service.transform_blog_to_story(title, content, prompt)
             
             await sync_to_async(self._save_success, thread_sensitive=False)(task_id, result["story"])
-            print(f"✅ Task {task_id} completed successfully.")
+            logging.info(f"✅ Task {task_id} completed successfully.")
 
         except Exception as e:
-            print(f"❌ Background Task Failed: {e}")
-            import pprint
-            pprint.pprint(e.__dir__())
-            print("Message :", e.message)
+            logging.error(f"❌ Background Task Failed: {e}")
             await sync_to_async(self._save_failure, thread_sensitive=False)(task_id, e.message)
 
 
