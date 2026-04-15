@@ -86,8 +86,6 @@ class UserLoginAPIView(View):
 class UserProfileAPIView(View):
     
     def get(self, request):
-        print(request.user)
-        print(request.user.is_authenticated)
         if request.user.is_authenticated:
             user = request.user
             data = {

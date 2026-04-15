@@ -20,13 +20,15 @@ def custom_404(request, exception):
 def custom_500(request):
     return render(request, "errors/500.html", status=500)
 
+
 urlpatterns = [
     path("", redirect_to_home, name="home"),
     path('flog/devi/admin/', admin.site.urls),
     path("health/", health_check),
-    path("about/", health_check),
+    # path("about/", ),
     path("auth/flog/", include(("user_profile.urls", "user_profile"))),
     path("flog/", include(("blog.urls", "blog"))),
+    path("task/", include(("task.urls", "task"))),
 ]
 
 if settings.DEBUG:

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "user_profile",
     "blog",
     "django_htmx",
+    "task",
 ]
 
 MIDDLEWARE = [
@@ -106,7 +107,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'flogger.wsgi.application'
+# WSGI_APPLICATION = 'flogger.wsgi.application'
+ASGI_APPLICATION = "flogger.asgi.application"
 
 # Replace the DATABASES section of your settings.py with this
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -202,3 +204,7 @@ JWT_SECRET = SECRET_KEY
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TTL = 15 * 60 * 60    # 15 minutes
 JWT_REFRESH_TTL = 7 * 24 * 3600  # 7 days
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_AI_MODELS = tuple(os.getenv("GEMINI_AI_MODEL").split(","))
+GEMINI_API_VERSION = os.getenv("GEMINI_API_VERSION","v1alpha")
